@@ -55,13 +55,13 @@ if __name__ == "__main__":
     encoder_hidden = parameters["encoder_hidden"]
     decoder_hidden = parameters["decoder_hidden"]
 
-    # number of features in each tensor
-    x_dim = parameters["x_dim"]
-    label_dim = parameters["label_dim"]
-
     # load training data
     inputs = np.load(parameters["inputs"])
     labels = np.load(parameters["labels"])
+
+    # number of features in each tensor
+    x_dim = np.shape(inputs)[1]
+    label_dim = np.shape(labels)[1]
 
     # create directory dedicated to work files
     config_name = os.path.splitext(os.path.basename(config))[0]
