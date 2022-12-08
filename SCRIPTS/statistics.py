@@ -49,6 +49,20 @@ def one_hot_to_string(vector, codes):
     return string
 
 
+def angles_distribution(ss, output: Output):
+    # return plane and dihedral angles corresponding to secondary structure
+    alpha = output.alpha()
+    theta = output.theta()
+    return [[ss, alpha, theta] for ss, alpha, theta in zip(ss, alpha, theta)]
+
+
+def extract_ss(labels):
+    n = int(len(labels) / 23) 
+    ORDINAL = 20 * n
+    return one_hot_to_string(labels[ORDINAL:], codes="HEC")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--model", type=str, help="model to be used")
     args = parser.parse_args()
