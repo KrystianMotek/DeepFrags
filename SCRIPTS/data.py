@@ -130,8 +130,8 @@ if __name__ == "__main__":
 
     # load and save
     data = DataSet(args.file)
-    # data.save_inputs(f"{work_directory}/inputs")
-    # data.save_labels(f"{work_directory}/labels")
+    data.save_inputs(f"{work_directory}/inputs")
+    data.save_labels(f"{work_directory}/labels")
 
     observations = data.observations
 
