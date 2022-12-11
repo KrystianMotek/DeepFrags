@@ -7,6 +7,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
+from statistics.statistics import hec_distribution
 
 '''
     Example line from data file
@@ -137,4 +138,7 @@ if __name__ == "__main__":
 
     # get statistics of plane and dihedral angles in data set
     ss_alpha_theta = [[observation.ss(), observation.alpha(), observation.theta()] for observation in observations]
-    ss_alpha_theta = np.concatenate([[[ss, float(alpha), float(theta)] for ss, alpha, theta in zip(element[0], element[1][0], element[2][0])] for element in ss_alpha_theta])
+    angles = np.concatenate([[[ss, float(alpha), float(theta)] for ss, alpha, theta in zip(element[0], element[1][0], element[2][0])] for element in ss_alpha_theta])
+
+    # each list represents different secondary structure
+    h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
