@@ -85,7 +85,7 @@ class Observation:
     
     def alpha(self):
         ORDINAL = 9
-        return tf.constant([[float(angle) for i, angle in enumerate(self.line[ORDINAL:]) if i % 2 == 1]])
+        return tf.constant([[float(angle) for i, angle in enumerate(self.line[ORDINAL:]) if i % 2 == 0]])
 
     def theta(self):
         ORDINAL = 10
@@ -130,5 +130,11 @@ if __name__ == "__main__":
 
     # load and save
     data = DataSet(args.file)
-    data.save_inputs(f"{work_directory}/inputs")
-    data.save_labels(f"{work_directory}/labels")
+    # data.save_inputs(f"{work_directory}/inputs")
+    # data.save_labels(f"{work_directory}/labels")
+
+    observations = data.observations
+
+    # get statistics of plane and dihedral angles in data set
+    ss_alpha_theta = [[observation.ss(), observation.alpha(), observation.theta()] for observation in observations]
+    ss_alpha_theta = np.concatenate([[[ss, float(alpha), float(theta)] for ss, alpha, theta in zip(element[0], element[1][0], element[2][0])] for element in ss_alpha_theta])
