@@ -14,3 +14,15 @@ def format_axis(x, pos):
     if n == -1: return "$-\pi/2$"
     if n == -2: return "-$\pi$"
     else: return None
+
+
+def theta_histogram(values, file):
+    # return distribution of dihedral angles given in radians
+    axes = plt.axes()
+    axes.xaxis.set_major_formatter(plt.FuncFormatter(format_axis))
+    axes.set_xlim(-np.pi, np.pi)
+    axes.set_xlabel("$\Theta$")
+    axes.set_yticks([])
+    plt.hist(values, alpha=0.45)
+    plt.savefig(file)
+    plt.clf()
