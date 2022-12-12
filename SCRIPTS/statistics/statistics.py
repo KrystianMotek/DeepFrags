@@ -80,8 +80,8 @@ def hec_distribution(angles):
         alpha = element[1]
         theta = element[2]
         if ss == "H": h_angles.append([alpha, theta])
-        if ss == "E": h_angles.append([alpha, theta])
-        if ss == "C": h_angles.append([alpha, theta])
+        if ss == "E": e_angles.append([alpha, theta])
+        if ss == "C": c_angles.append([alpha, theta])
     return h_angles, e_angles, c_angles
 
 
