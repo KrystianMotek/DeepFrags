@@ -8,6 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 import numpy as np
 from statistics.statistics import hec_distribution
+from statistics.plots import theta_histogram
 
 '''
     Example line from data file
@@ -126,8 +127,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", type=str, help="path to the data file")
     args = parser.parse_args()
-
-    work_directory = os.path.dirname(os.path.abspath(__file__))
+    
+    # create directory where generated files will be stored
+    file_name = os.path.splitext(os.path.basename(args.file))[0]
+    work_directory = f"{os.path.dirname(os.path.abspath(__file__))}/{file_name}"
+    os.makedirs(work_directory)
 
     # load and save
     data = DataSet(args.file)
