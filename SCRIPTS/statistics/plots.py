@@ -1,28 +1,58 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
 
-def format_axis(x, pos):
-    # change ticks to radians 
-    # this function is used by class matplotlib.ticker.FuncFormatter 
+def alpha_histogram(values, file):
+    fig = plt.gcf()
+    axes = plt.axes()
 
-    n = int(np.round(x * 2 / np.pi)) # half of pi multiples
+    fig.set_size_inches(17.5, 7.0) # figure size
 
-    if n == 0: return "$0$"
-    if n == 1: return "$\pi/2$"
-    if n == 2: return "$\pi$"
-    if n == -1: return "$-\pi/2$"
-    if n == -2: return "-$\pi$"
-    else: return None
+    # axes configuration
+    axes.set_xlim(0, 180)
+    axes.xaxis.set_label_coords(0.5007, -0.0787)
+    axes.xaxis.set_major_locator(plt.MaxNLocator(19))
+    axes.set_xlabel(r"$\alpha \hspace{0.25} (^\circ)$", fontsize=15)
+
+    axes.hist(values, bins=30, density=True, fill=False) # create histogram
+    plt.savefig(file)
+    plt.clf()
 
 
 def theta_histogram(values, file):
-    # return distribution of dihedral angles given in radians
+    fig = plt.gcf()
     axes = plt.axes()
-    axes.xaxis.set_major_formatter(plt.FuncFormatter(format_axis))
-    axes.set_xlim(-np.pi, np.pi)
-    axes.set_xlabel("$\Theta$")
-    axes.set_yticks([])
-    plt.hist(values, alpha=0.45)
+
+    fig.set_size_inches(17.5, 7.0) # figure size
+
+    # axes configuration
+    axes.set_xlim(-180, 180)
+    axes.xaxis.set_label_coords(0.5007, -0.0787)
+    axes.xaxis.set_major_locator(plt.MaxNLocator(37))
+    axes.set_xlabel(r"$\Theta \hspace{0.25} (^\circ)$", fontsize=15)
+
+    axes.hist(values, bins=70, density=True, fill=False) # create histogram
+    plt.savefig(file)
+    plt.clf()
+
+
+def correlation_plot(alpha, theta, file):
+    fig = plt.gcf()
+    axes = plt.axes()
+
+    fig.set_size_inches(16.5, 16.5) # both axes are the same size
+
+    # horizontal axis
+    axes.set_xlim(0, 180)
+    axes.set_xlabel(r"$\alpha \hspace{0.25} (^\circ)$", fontsize=25)
+    axes.xaxis.set_major_locator(plt.MaxNLocator(18))
+    axes.xaxis.set_label_coords(0.50, -0.04)
+
+    # vertical axis 
+    axes.set_ylim(-180, 180)
+    axes.set_ylabel(r"$\Theta \hspace{0.25} (^\circ)$", fontsize=25)
+    axes.yaxis.set_major_locator(plt.MaxNLocator(19))
+
+    # create and save
+    axes.scatter(x=alpha, y=theta, s=0.015)
     plt.savefig(file)
     plt.clf()
