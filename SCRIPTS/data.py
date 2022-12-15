@@ -8,7 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 import numpy as np
 from statistics.statistics import hec_distribution
-from statistics.plots import theta_histogram
+from statistics.plots import alpha_histogram, theta_histogram, correlation_plot
 
 '''
     Example line from data file
@@ -128,10 +128,8 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--file", type=str, help="path to the data file")
     args = parser.parse_args()
     
-    # create directory where generated files will be stored
-    file_name = os.path.splitext(os.path.basename(args.file))[0]
-    work_directory = f"{os.path.dirname(os.path.abspath(__file__))}/{file_name}"
-    os.makedirs(work_directory)
+    # directory where generated files will be stored
+    work_directory = os.path.dirname(args.file)
 
     # load and save
     data = DataSet(args.file)
@@ -146,3 +144,15 @@ if __name__ == "__main__":
 
     # each list represents different secondary structure
     h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
+
+    h_alpha = [float(angle[0]) for angle in h_angles]
+    h_theta = [float(angle[1]) for angle in h_angles]
+
+    e_alpha = [float(angle[0]) for angle in e_angles]
+    e_theta = [float(angle[1]) for angle in e_angles]
+
+    c_alpha = [float(angle[0]) for angle in c_angles]
+    c_theta = [float(angle[1]) for angle in c_angles]
+
+    # relationship between alpha and theta got from all observations
+    correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{work_directory}/correlation")
