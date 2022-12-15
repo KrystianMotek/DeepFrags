@@ -63,10 +63,8 @@ if __name__ == "__main__":
     x_dim = np.shape(inputs)[1]
     label_dim = np.shape(labels)[1]
 
-    # create directory dedicated to work files
-    config_name = os.path.splitext(os.path.basename(config))[0]
-    work_directory = f"{os.path.dirname(os.path.abspath(__file__))}/{config_name}"
-    os.makedirs(work_directory)
+    # directory dedicated to work files
+    work_directory = os.path.dirname(config)
     
     # logging configuration
     logging_file = f"{work_directory}/logging"
@@ -108,7 +106,7 @@ if __name__ == "__main__":
     # build model
     cvae = tf.keras.Model([x, label], x_reconstructed)
 
-    logging.info(f"CVAE training initiated from {config_name}.cfg")
+    logging.info(f"CVAE training initiated from {os.path.splitext(os.path.basename(config))[0]}.cfg")
 
     # compile and fit
     cvae.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss=total_loss, metrics=[kl_loss, mse_loss])
