@@ -154,5 +154,17 @@ if __name__ == "__main__":
     c_alpha = [float(angle[0]) for angle in c_angles]
     c_theta = [float(angle[1]) for angle in c_angles]
 
+    # place for generated plots
+    os.makedirs(f"{work_directory}/graphs")
+
+    alpha_histogram(h_alpha, f"{work_directory}/graphs//h_alpha")
+    theta_histogram(h_theta, f"{work_directory}/graphs/h_theta")
+
+    alpha_histogram(e_alpha, f"{work_directory}/graphs/e_alpha")
+    theta_histogram(e_theta, f"{work_directory}/graphs/e_theta")
+
+    alpha_histogram(c_alpha, f"{work_directory}/graphs/c_alpha")
+    theta_histogram(c_theta, f"{work_directory}/graphs/c_theta")
+
     # relationship between alpha and theta got from all observations
-    correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{work_directory}/correlation")
+    correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{work_directory}/graphs/correlation")
