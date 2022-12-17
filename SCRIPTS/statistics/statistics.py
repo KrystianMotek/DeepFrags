@@ -8,6 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
+from plots import alpha_histogram, theta_histogram, correlation_plot
 
 
 class Output:
@@ -120,11 +121,34 @@ if __name__ == "__main__":
     raw_output = decoder.predict(tf.keras.layers.concatenate([latent_sample, labels]))
     outputs = [Output(vector) for vector in raw_output]
 
-    # get secondary structures from labels 
-    ss = [extract_ss(vector) for vector in labels]
+    ss = [extract_ss(vector) for vector in labels]  # get secondary structures from labels 
 
     # secondary structure with plane and dihedral angles
     angles = np.concatenate([angles_distribution(ss, output) for ss, output in zip(ss, outputs)]) 
 
     # divide angles into three categories
     h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
+
+    h_alpha = [float(angle[0]) for angle in h_angles]
+    h_theta = [float(angle[1]) for angle in h_angles]
+
+    e_alpha = [float(angle[0]) for angle in e_angles]
+    e_theta = [float(angle[1]) for angle in e_angles]
+
+    c_alpha = [float(angle[0]) for angle in c_angles]
+    c_theta = [float(angle[1]) for angle in c_angles]
+
+    # generate plots and save them in created directory
+
+    os.makedirs(f"{model}/graphs")
+
+    alpha_histogram(h_alpha, f"{model}/graphs//h_alpha")
+    theta_histogram(h_theta, f"{model}/graphs/h_theta")
+
+    alpha_histogram(e_alpha, f"{model}/graphs/e_alpha")
+    theta_histogram(e_theta, f"{model}/graphs/e_theta")
+
+    alpha_histogram(c_alpha, f"{model}/graphs/c_alpha")
+    theta_histogram(c_theta, f"{model}/graphs/c_theta")
+
+    correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{model}/graphs/correlation")
