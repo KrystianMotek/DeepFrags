@@ -1,13 +1,27 @@
 #include <iostream>
-
+#include <string>
+#include <vector>
+#include <sstream>
 using namespace std;
 
 /*
-    script for data generating 
+    script for data generating
     extract random fragments from proteins collection
     example line shown below
     1a62A 3 THR 4 MNLTELKNTPV CCHHHHHCCCH 1.284 -5.477 -2.600 99.739 -124.579 91.327 49.439 90.431 53.359 90.948 45.020 87.256 56.852
 */
+
+vector<string> splitBySpace(string line)
+{
+    vector<string> results;
+    istringstream stream(line);
+    string newString;
+    while (getline(stream, newString, ' '))
+    {
+        results.push_back(newString);
+    }
+    return results;
+}
 
 bool isCorrect(string line)
 {
