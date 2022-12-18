@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cstring>
+
 using namespace std;
 
 /*
@@ -23,10 +25,30 @@ vector<string> splitBySpace(string line)
     return results;
 }
 
+vector<char> stringToVector(string str)
+{
+    vector<char> elements;
+    int n = str.length();
+    char elementsArray[n + 1];
+    strcpy(elementsArray, str.c_str());
+    for (int i = 0; i < n; i++)
+    {
+        elements.push_back(elementsArray[i]);
+    }
+    return elements;
+}
+
 bool isCorrect(string line)
 {
     // check if given line contains sequence and secondary structure written in a proper way
     bool correct = true;
+    vector<string> elements = splitBySpace(line);
+    int AA_ORIDNAL = 4;
+    int SS_ORDINAL = 5;
+    string aa = elements[AA_ORIDNAL];
+    string ss = elements[SS_ORDINAL];
+    int aaLength = aa.length();
+    int ssLength = ss.length();
     return correct;
 }
 
