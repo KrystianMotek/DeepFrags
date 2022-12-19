@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
+#include <fstream>
 
 using namespace std;
 
@@ -42,14 +43,33 @@ bool isCorrect(string line)
 {
     // check if given line contains sequence and secondary structure written in a proper way
     bool correct = true;
-    vector<string> elements = splitBySpace(line);
-    int AA_ORIDNAL = 4;
-    int SS_ORDINAL = 5;
-    string aa = elements[AA_ORIDNAL];
-    string ss = elements[SS_ORDINAL];
-    int aaLength = aa.length();
-    int ssLength = ss.length();
+    
     return correct;
+}
+
+vector<string> readByLine(string file) 
+{
+    vector<string> lines;
+    ifstream linesFile;
+    string line;
+    linesFile.open(file);
+    while (getline(linesFile, line))
+    {
+        lines.push_back(line);
+    }
+    linesFile.close();
+    lines.erase(lines.begin());
+    return lines;
+}
+
+void saveToFile(vector<string> lines, string file) 
+{   
+    ofstream linesFile;
+    linesFile.open(file);
+    for (string line : lines) 
+    {
+        cout << line << endl;
+    }
 }
 
 int main()
