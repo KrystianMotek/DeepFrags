@@ -105,7 +105,11 @@ class Observation:
 class DataSet:
     def __init__(self, file):
         self.file = file
-        self.lines = [line.split() for line in open(file, "r").readlines()]
+
+        stream = open(file, "r")
+        self.lines = [line.split() for line in stream.readlines()] # read line by line
+        stream.close()
+
         self.observations = [Observation(line) for line in self.lines]
 
     def inputs_tensor(self):
