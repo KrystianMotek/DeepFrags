@@ -81,13 +81,13 @@ if __name__ == "__main__":
     # encoder architecture
     encoder = tf.keras.Sequential(name="encoder")
     encoder.add(tf.keras.layers.InputLayer([x_dim + label_dim]))
-    encoder.add(tf.keras.layers.Dense(encoder_hidden, activation="sigmoid"))
+    encoder.add(tf.keras.layers.Dense(encoder_hidden, activation="relu"))
     encoder.add(tf.keras.layers.Dense(2 * latent_dim, activation="linear"))
 
     # decoder architecture
     decoder = tf.keras.Sequential(name="decoder")
     decoder.add(tf.keras.layers.InputLayer([latent_dim + label_dim]))
-    decoder.add(tf.keras.layers.Dense(decoder_hidden, activation="sigmoid"))
+    decoder.add(tf.keras.layers.Dense(decoder_hidden, activation="relu"))
     decoder.add(tf.keras.layers.Dense(x_dim, activation="linear"))
 
     # split encoded data into two vectors
