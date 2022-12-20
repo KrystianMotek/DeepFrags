@@ -35,6 +35,7 @@ if __name__ == "__main__":
     config = args.config
     config_file = open(config, "r")
     parameters = json.loads(config_file.read())
+    config_file.close()
 
     batch = parameters["batch"]
     epochs = parameters["epochs"]
@@ -80,13 +81,13 @@ if __name__ == "__main__":
     # encoder architecture
     encoder = tf.keras.Sequential(name="encoder")
     encoder.add(tf.keras.layers.InputLayer([x_dim + label_dim]))
-    encoder.add(tf.keras.layers.Dense(encoder_hidden, activation="relu"))
+    encoder.add(tf.keras.layers.Dense(encoder_hidden, activation="sigmoid"))
     encoder.add(tf.keras.layers.Dense(2 * latent_dim, activation="linear"))
 
     # decoder architecture
     decoder = tf.keras.Sequential(name="decoder")
     decoder.add(tf.keras.layers.InputLayer([latent_dim + label_dim]))
-    decoder.add(tf.keras.layers.Dense(decoder_hidden, activation="relu"))
+    decoder.add(tf.keras.layers.Dense(decoder_hidden, activation="sigmoid"))
     decoder.add(tf.keras.layers.Dense(x_dim, activation="linear"))
 
     # split encoded data into two vectors
@@ -118,8 +119,9 @@ if __name__ == "__main__":
     metrics = np.transpose([history.history["kl_loss"], history.history["mse_loss"]])
     np.save(f"{work_directory}/metrics", metrics)
 
-    # save variables from the latent space
     latent_variables = encoder.predict(tf.keras.layers.concatenate([inputs, labels]), steps=1)
+
+    # save variables from the latent space
     np.save(f"{work_directory}/latent", np.split(latent_variables, indices_or_sections=2, axis=1))
 
     # save architectures and obtained weights
