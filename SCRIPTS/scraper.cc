@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -7,6 +8,7 @@
 #include <algorithm>
 
 using namespace std;
+namespace fs = filesystem;
 
 /*
     script for data generating
@@ -84,6 +86,18 @@ vector<string> readLineByLine(string file)
     return lines;
 }
 
+vector<string> getDatFiles(string directory) 
+{
+    vector<string> files;
+    string const extension = ".dat";
+    for (const auto & entry : fs::directory_iterator(directory))
+    {
+        if (entry.path().extension() == extension)
+            files.push_back(entry.path().string());
+    }
+    return files;
+}
+
 void saveToFile(vector<string> lines, string file) 
 {   
     ofstream linesFile;
@@ -94,7 +108,23 @@ void saveToFile(vector<string> lines, string file)
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    string directory = argv[1];
+    vector<string> files = getDatFiles(directory);
+    vector<string> allLines;
+    for (string file : files)
+    {
+        vector<string> lines = readLineByLine(file);
+        for (string line : lines)
+        {
+            if (isCorrect(line))
+            {
+                allLines.push_back(line);
+            }
+        }
+        vector<string>().swap(lines);
+    }
+    vector<string>().swap(files);
     return 0;
 }
