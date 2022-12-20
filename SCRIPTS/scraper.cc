@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -13,6 +14,9 @@ using namespace std;
     example line shown below
     1a62A 3 THR 4 MNLTELKNTPV CCHHHHHCCCH 1.284 -5.477 -2.600 99.739 -124.579 91.327 49.439 90.431 53.359 90.948 45.020 87.256 56.852
 */
+
+vector<char> aaCodes = {'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'};
+vector<char> ssCodes = {'H', 'E', 'C'};
 
 vector<string> splitBySpace(string line)
 {
@@ -28,26 +32,44 @@ vector<string> splitBySpace(string line)
 
 vector<char> stringToVector(string str)
 {
-    vector<char> elements;
+    vector<char> results;
     int n = str.length();
     char elementsArray[n + 1];
     strcpy(elementsArray, str.c_str());
     for (int i = 0; i < n; i++)
     {
-        elements.push_back(elementsArray[i]);
+        results.push_back(elementsArray[i]);
     }
-    return elements;
+    return results;
 }
 
 bool isCorrect(string line)
 {
     // check if given line contains sequence and secondary structure written in a proper way
     bool correct = true;
-    
+    vector<string> items = splitBySpace(line);
+    int AA_ORDINAL = 4;
+    int SS_ORDINAL = 5;
+    vector<char> aa = stringToVector(items[AA_ORDINAL]);
+    vector<char> ss = stringToVector(items[SS_ORDINAL]);
+    for (char i : aa)
+    {
+        if (!(count(aaCodes.begin(), aaCodes.end(), i)))
+        {
+            correct = false;
+        }
+    }
+    for (char j : ss) 
+    {
+        if (!(count(ssCodes.begin(), ssCodes.end(), j)))
+        {
+            correct = false;
+        }
+    }
     return correct;
 }
 
-vector<string> readByLine(string file) 
+vector<string> readLineByLine(string file) 
 {
     vector<string> lines;
     ifstream linesFile;
