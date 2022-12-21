@@ -6,7 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <algorithm>
-
+#include <random>
 using namespace std;
 namespace fs = filesystem;
 
@@ -19,6 +19,24 @@ namespace fs = filesystem;
 
 vector<char> aaCodes = {'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'};
 vector<char> ssCodes = {'H', 'E', 'C'};
+
+vector<string> randomSample(vector<string> structure, int length)
+{
+    // select unique elements from given vector
+    vector<string> elements;
+    int i = 0;
+    while (i < length)
+    {
+        int random = rand() % structure.size();
+        string newElement = structure[random]; 
+        if (!(count(elements.begin(), elements.end(), newElement)))
+        {   
+            elements.push_back(newElement);
+            ++i;
+        }
+    }
+    return elements;
+}
 
 vector<string> splitBySpace(string line)
 {
@@ -82,7 +100,7 @@ vector<string> readLineByLine(string file)
         lines.push_back(line);
     }
     linesFile.close();
-    lines.erase(lines.begin());
+    lines.erase(lines.begin()); // remove headlines 
     return lines;
 }
 
