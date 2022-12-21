@@ -27,7 +27,7 @@ vector<string> randomSample(vector<string> structure, int length)
     int i = 0;
     while (i < length)
     {
-        int random = rand() % structure.size();
+        int random = rand() % structure.size(); 
         string newElement = structure[random]; 
         if (!(count(elements.begin(), elements.end(), newElement)))
         {   
@@ -73,6 +73,7 @@ bool isCorrect(string line)
     vector<char> aa = stringToVector(items[AA_ORDINAL]);
     vector<char> ss = stringToVector(items[SS_ORDINAL]);
     for (char i : aa)
+    // amino acids sequence checking
     {
         if (!(count(aaCodes.begin(), aaCodes.end(), i)))
         {
@@ -80,6 +81,7 @@ bool isCorrect(string line)
         }
     }
     for (char j : ss) 
+    // secondary structure checking
     {
         if (!(count(ssCodes.begin(), ssCodes.end(), j)))
         {
@@ -118,6 +120,7 @@ vector<string> getDatFiles(string directory)
 
 void saveToFile(vector<string> lines, string file) 
 {   
+    // save given vector line by line
     ofstream linesFile;
     linesFile.open(file);
     for (string line : lines) 
@@ -128,7 +131,10 @@ void saveToFile(vector<string> lines, string file)
 
 int main(int argc, char* argv[])
 {
+    // read arguments from console
     string directory = argv[1];
+    string output = argv[2];
+    int length = stoi(argv[3]);
     vector<string> files = getDatFiles(directory);
     vector<string> allLines;
     for (string file : files)
@@ -141,8 +147,10 @@ int main(int argc, char* argv[])
                 allLines.push_back(line);
             }
         }
-        vector<string>().swap(lines);
+        vector<string>().swap(lines); 
     }
     vector<string>().swap(files);
+    vector<string> selectedLines = randomSample(allLines, length);
+    saveToFile(selectedLines, output);
     return 0;
 }
