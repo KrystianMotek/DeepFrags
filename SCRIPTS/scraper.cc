@@ -7,6 +7,7 @@
 #include <fstream>
 #include <algorithm>
 #include <random>
+
 using namespace std;
 namespace fs = filesystem;
 
@@ -23,6 +24,7 @@ vector<char> ssCodes = {'H', 'E', 'C'};
 vector<string> randomSample(vector<string> structure, int length)
 {
     // select unique elements from given vector
+    srand (time(0));
     vector<string> elements;
     int i = 0;
     while (i < length)
@@ -45,7 +47,10 @@ vector<string> splitBySpace(string line)
     string newString;
     while (getline(stream, newString, ' '))
     {
-        results.push_back(newString);
+        if (!newString.empty())
+        {
+            results.push_back(newString);
+        }
     }
     return results;
 }
@@ -125,8 +130,9 @@ void saveToFile(vector<string> lines, string file)
     linesFile.open(file);
     for (string line : lines) 
     {
-        cout << line << endl;
+        linesFile << line << endl;
     }
+    linesFile.close();
 }
 
 int main(int argc, char* argv[])
