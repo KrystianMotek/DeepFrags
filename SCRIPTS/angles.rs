@@ -34,7 +34,6 @@ impl Vec3
 
 pub fn z_matrix_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Vec3, bond_length: f64, planar_angle: f64, dihedral_angle: f64, mut new_atom: &mut Vec3)
 {
-    // define and use trigonometric properties
     let sin_planar: f64 = (PI - planar_angle).sin();
     let cos_planar: f64 = (PI - planar_angle).cos();
     let sin_dih: f64 = dihedral_angle.sin();
@@ -99,19 +98,20 @@ pub fn z_matrix_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut 
     new_atom.x = x2o * xx4 - z2o * zz4;
     new_atom.z = z2o * xx4 + x2o * zz4;
 
-    new_atom.add(atom_1); // finally update position of joined atom and treat it as zero point
+    new_atom.add(atom_1); // finally update position of joined atom 
 }
 
 fn main()
 {   
     // Test
+    let r: f64 = 3.8;
+    let alpha: f64 = 85.0;
+    let theta: f64 = 160.0;
     let mut _c1 = Vec3{x: 0.0, y: 0.0, z: 0.0};
     let mut _c2 = Vec3{x: 3.8, y: 0.0, z: 0.0};
     let mut _c3 = Vec3{x: 3.8, y: 3.8, z: 0.0};
     let mut _c4 = Vec3{x: 0.0, y: 0.0, z: 0.0}; // coordinates of new atom can be random during initialization 
-    let r: f64 = 3.8;
-    let alpha: f64 = 85.0;
-    let theta: f64 = 160.0;
+
     z_matrix_to_cartesian(&mut _c1, &mut _c2, &mut _c3, r, alpha.to_radians(), theta.to_radians(), &mut _c4);
     println!("x {:.3} y {:.3} z {:.3}", _c4.x, _c4.y, _c4.z);
     println!("length {:.3}", _c4.length())
