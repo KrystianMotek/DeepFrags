@@ -8,8 +8,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
-from data import Label
-from statistics.statistics import Output
+from data.data import Label
+from statistics.utils import Output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
