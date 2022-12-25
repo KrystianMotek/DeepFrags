@@ -8,7 +8,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 import numpy as np
 from data.data import DataSet
-from statistics.utils import hec_distribution
+from statistics.statistics import hec_distribution
 from statistics.graphs import alpha_histogram, theta_histogram, correlation_plot
 
 '''
