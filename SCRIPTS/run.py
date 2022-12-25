@@ -8,8 +8,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
-from graphs import *
-from utils import *
+from statistics.graphs import *
+from statistics.statistics import *
 
 
 if __name__ == "__main__":
