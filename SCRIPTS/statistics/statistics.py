@@ -1,4 +1,6 @@
 import numpy as np
+from coordinates import Vec3
+from coordinates import z_matrix_to_cartesian
 
 
 class Output:
@@ -37,7 +39,17 @@ class Output:
         return np.concatenate([self.displacement(), angles])
 
     def to_cartesian(self, bond_length=3.8):
-        pass
+        # angles below are given in degrees
+        alpha = self.alpha()
+        theta = self.theta()
+
+        # prepare initial atoms
+        c_s = Vec3(x=0.0, y=0.0, z=0.0)
+        c_1 = Vec3(x=bond_length, y=0.0, z=0.0)
+        c_2 = Vec3(x=bond_length * (1 + np.cos(np.radians(90 - 0.5 * alpha[0]))), y=bond_length * np.sqrt(1 - np.cos(np.radians(90 - 0.5 * alpha[0])) ** 2), z=0.0)
+
+        atoms = [c_s, c_1, c_2] # list of all reconstructed carbons
+        return atoms
 
     def to_pdb(self, ordinal):
         pass
