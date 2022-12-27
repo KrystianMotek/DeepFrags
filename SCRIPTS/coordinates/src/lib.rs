@@ -24,6 +24,12 @@ impl Vec3
         Vec3{x, y, z}
     } 
 
+    pub fn to_list(&self) -> Vec<f64> 
+    {
+        let list = vec![self.x, self.y, self.z];
+        list
+    }
+
     pub fn length(&self) -> f64
     {
         (self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0)).sqrt()
