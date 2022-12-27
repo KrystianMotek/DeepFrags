@@ -17,7 +17,7 @@ class Output:
     def alpha(self):
         START = 3
         END = START + self.n
-        return 180 * self.vector[START:END] # original alpha angles are normalized at the stage of data processing
+        return [180 * alpha for alpha in self.vector[START:END]] # original alpha angles are normalized at the stage of data processing
 
     def sin_theta(self):
         START = 3 + self.n
@@ -35,6 +35,12 @@ class Output:
     def to_original(self):
         angles = np.concatenate([[alpha, theta] for alpha, theta in zip(self.alpha(), self.theta())])
         return np.concatenate([self.displacement(), angles])
+
+    def to_cartesian(self, bond_length=3.8):
+        pass
+
+    def to_pdb(self, ordinal):
+        pass
 
 
 def one_hot_to_string(vector, codes):
