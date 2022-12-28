@@ -43,12 +43,32 @@ class Output:
         alpha = self.alpha()
         theta = self.theta()
 
-        # prepare initial atoms
+        # set initial atoms 
         c_s = Vec3(x=0.0, y=0.0, z=0.0)
         c_1 = Vec3(x=bond_length, y=0.0, z=0.0)
-        c_2 = Vec3(x=bond_length * (1 + np.cos(np.radians(90 - 0.5 * alpha[0]))), y=bond_length * np.sqrt(1 - np.cos(np.radians(90 - 0.5 * alpha[0])) ** 2), z=0.0)
+        c_2 = Vec3(x=bond_length * (1 + np.cos(np.radians(180 - alpha[0]))), y=bond_length * np.sin(np.radians(180 - alpha[0])), z=0.0)
 
-        atoms = [c_s, c_1, c_2] # list of all reconstructed carbons
+        atoms = [c_s, c_1, c_2] # list of reconstructed carbons   
+
+        count = 0
+        for alpha, theta in zip(alpha[1:], theta[1:]):
+            c_i = Vec3(x=0.0, y=0.0, z=0.0)
+            c_j = Vec3(x=atoms[-2].x, y=atoms[-2].y, z=atoms[-2].z)
+            c_k = Vec3(x=atoms[-1].x, y=atoms[-1].y, z=atoms[-1].z)
+            c_0 = Vec3(x=atoms[-3].x, y=atoms[-3].y, z=atoms[-3].z)
+            c_new = Vec3(x=9.999, y=9.999, z=9.999)
+            c_j.subtract(c_0)
+            c_k.subtract(c_0)
+
+            if count == self.n - 2:
+                z_matrix_to_cartesian(c_i, c_j, c_k, np.linalg.norm(self.displacement()), np.radians(alpha), np.radians(theta), c_new)
+            else:
+                z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha), np.radians(theta), c_new)
+
+            c_new.add(c_0)
+            atoms.append(c_new)
+            count += 1
+
         return atoms
 
     def to_pdb(self, ordinal):
