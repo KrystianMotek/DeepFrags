@@ -7,11 +7,11 @@ pub const PI: f64 = 3.14;
 #[pyclass]
 pub struct Vec3
 {
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     x: f64,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     y: f64,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     z: f64,
 }
 
