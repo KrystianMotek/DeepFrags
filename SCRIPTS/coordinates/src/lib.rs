@@ -51,7 +51,7 @@ impl Vec3
 }
 
 #[pyfunction]
-pub fn z_matrix_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Vec3, bond_length: f64, planar_angle: f64, dihedral_angle: f64, mut new_atom: &mut Vec3)
+pub fn z_matrix_to_cartesian(atom_3: &mut Vec3, atom_2: &mut Vec3, atom_1: &mut Vec3, bond_length: f64, planar_angle: f64, dihedral_angle: f64, mut new_atom: &mut Vec3)
 {
     let sin_planar: f64 = (PI - planar_angle).sin();
     let cos_planar: f64 = (PI - planar_angle).cos();
