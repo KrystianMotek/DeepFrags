@@ -11,7 +11,6 @@ import numpy as np
 from statistics.graphs import *
 from statistics.statistics import *
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", type=str, help="model to be used")
@@ -37,7 +36,8 @@ if __name__ == "__main__":
     mean, log_variance = latent_variables[0], latent_variables[1]
     z = np.concatenate([i + np.exp(0.5 * j) * np.random.normal(loc=0.0, scale=1.0, size=(1, latent_dim)) for i, j in zip(mean, log_variance)])
 
-    latent_sample = np.array(random.sample(list(z), observations)) # sampling from the latent space
+    # sample from the latent space
+    latent_sample = np.array(random.sample(list(z), observations)) 
 
     # load decoder with trained parameters
     decoder = tf.keras.models.load_model(f"{model}/decoder.h5")
@@ -47,12 +47,12 @@ if __name__ == "__main__":
     raw_output = decoder.predict(tf.keras.layers.concatenate([latent_sample, labels]))
     outputs = [Output(vector) for vector in raw_output]
 
-    ss = [extract_ss(vector) for vector in labels]  # get secondary structures from labels 
+    # get secondary structures from labels 
+    ss = [extract_ss(vector) for vector in labels] 
 
-    # secondary structure with plane and dihedral angles
+    # secondary structure connected with plane and dihedral angles
     angles = np.concatenate([angles_distribution(ss, output) for ss, output in zip(ss, outputs)]) 
 
-    # divide angles into three categories
     h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
 
     h_alpha = [float(angle[0]) for angle in h_angles]
