@@ -18,7 +18,6 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--model", type=str, help="model to be used")
     args = parser.parse_args()
 
-    np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
     aa = args.aa 
@@ -47,12 +46,9 @@ if __name__ == "__main__":
     # predict cooridnates for given label
     output_vector = decoder.predict(tf.keras.layers.concatenate([latent_sample, label_vector]))[0] 
 
-    # reverse output to displacement and angles
-    output = Output(output_vector).to_original() 
-
-    # compute norm of displacement
-    displacement_norm = np.linalg.norm(output[0:3]) 
+    # reverse output to PDB format
+    output = Output(output_vector).to_pdb() 
 
     # show results
-    print(output)
-    print("%.2f" % displacement_norm)
+    for line in output:
+        print(line)
