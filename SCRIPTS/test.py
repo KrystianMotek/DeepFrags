@@ -25,7 +25,7 @@ if __name__ == "__main__":
     ss = args.ss 
     model = args.model 
 
-    label_vector = Label(aa, ss).to_vector() # generate vector for given sequence and secondary structure
+    label_vector = Label(aa, ss).to_vector() 
 
     label_dim = len(label_vector) # number of features in label vector
 
@@ -37,17 +37,21 @@ if __name__ == "__main__":
     mean, log_variance = latent_variables[0], latent_variables[1]
     z = np.concatenate([i + np.exp(0.5 * j) * np.random.normal(loc=0.0, scale=1.0, size=(1, latent_dim)) for i, j in zip(mean, log_variance)])
 
-    latent_sample = np.array(random.sample(list(z), 1)) # random sample from the latent space
+    # random sample from the latent space
+    latent_sample = np.array(random.sample(list(z), 1)) 
 
-    decoder = tf.keras.models.load_model(f"{model}/decoder.h5") # load decoder 
+    # load decoder 
+    decoder = tf.keras.models.load_model(f"{model}/decoder.h5")  
+    decoder.load_weights(f"{model}/weights.h5", by_name=True, skip_mismatch=True) 
 
-    decoder.load_weights(f"{model}/weights.h5", by_name=True, skip_mismatch=True) # take values of trained weights 
+    # predict cooridnates for given label
+    output_vector = decoder.predict(tf.keras.layers.concatenate([latent_sample, label_vector]))[0] 
 
-    output_vector = decoder.predict(tf.keras.layers.concatenate([latent_sample, label_vector]))[0] # predict cooridnates for given label
+    # reverse output to displacement and angles
+    output = Output(output_vector).to_original() 
 
-    output = Output(output_vector).to_original() # reverse output to original form
-    
-    displacement_norm = np.linalg.norm(output[0:3]) # compute norm of displacement
+    # compute norm of displacement
+    displacement_norm = np.linalg.norm(output[0:3]) 
 
     # show results
     print(output)
