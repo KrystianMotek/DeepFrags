@@ -71,8 +71,12 @@ class Output:
 
         return atoms
 
-    def to_pdb(self, ordinal):
-        pass
+    def to_pdb(self):
+        lines = []
+        for ordinal, atom in enumerate(self.to_cartesian()):
+            x, y, z = atom.to_list()[0], atom.to_list()[1], atom.to_list()[2]
+            lines.append("ATOM".ljust(10) + f"{ordinal}".ljust(3) + "CA  XXX  X".ljust(17) + f"{x:.3f}".ljust(8) + f"{y:.3f}".ljust(8) + f"{z:.3f}")
+        return lines[1:-1] # exclude boundary atoms
 
 
 def one_hot_to_string(vector, codes):
