@@ -1,6 +1,10 @@
-use std::fs;
+use std::io::BufReader;
+use std::fs::read_dir;
+use std::io::BufRead;
 use std::path::Path;
 use std::ffi::OsStr;
+use std::io::Error;
+use std::fs::File;
 use pyo3::prelude::*;
 
 // some functionalities for data generating
@@ -44,7 +48,7 @@ pub fn get_extension(file: &str) -> Option<&str>
 #[pyfunction]
 pub fn collect_files(directory: &str) -> Vec<String>
 {
-    let all = fs::read_dir(directory).unwrap();
+    let all = read_dir(directory).unwrap();
     let mut files = Vec::new();
     for item in all
     {
@@ -55,6 +59,24 @@ pub fn collect_files(directory: &str) -> Vec<String>
         }
     }
     files
+}
+
+#[pyfunction]
+pub fn read_lines(file: &str) -> Vec<Result<String, Error>>
+{
+    // also check each line 
+    let stream  = File::open(file).expect("Cannot open file");
+    let reader = BufReader::new(stream);
+    let mut lines = Vec::new();
+    for line in reader.lines()
+    {
+        let ok = check_if_correct(&line.as_ref().unwrap().to_string());
+        if ok == true
+        {
+            lines.push(line);
+        }
+    }
+    lines
 }
 
 #[pymodule]
