@@ -48,7 +48,9 @@ if __name__ == "__main__":
 
     # reverse output to PDB format
     output = Output(output_vector).to_pdb() 
+    
+    pdb_file = open(f"{os.path.dirname(os.path.abspath(__file__))}/{aa}_{ss}.pdb", "a")
 
     # show results
     for line in output:
-        print(line)
+        print(line, file=pdb_file)
