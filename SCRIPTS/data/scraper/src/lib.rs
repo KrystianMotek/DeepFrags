@@ -1,9 +1,13 @@
+use std::io::BufReader;
 use std::fs::read_dir;
+use std::io::BufRead;
 use std::path::Path;
 use std::ffi::OsStr;
+use std::fs::File;
 use pyo3::prelude::*;
 
 // some functionalities for data generating
+// extract random fragments from proteins collection
 
 static AA_CODES: &'static [char] = &['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'];
 static SS_CODES: &'static [char] = &['H', 'E', 'C'];
@@ -56,11 +60,21 @@ pub fn collect_files(directory: &str) -> Vec<String>
     files
 }
 
+#[pyfunction]
+pub fn read_lines(file: &str) -> Vec<String>
+{
+    let stream = File::open(Path::new(file)).unwrap();
+    let reader = BufReader::new(&stream);
+    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>().unwrap();
+    lines
+}
+
 #[pymodule]
 fn scraper(_: Python, m: &PyModule) -> PyResult<()>
 {
     m.add_function(wrap_pyfunction!(check_if_correct, m)?).unwrap();
     m.add_function(wrap_pyfunction!(get_extension, m)?).unwrap();
     m.add_function(wrap_pyfunction!(collect_files, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
     Ok(())
 }
