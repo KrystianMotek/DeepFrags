@@ -1,17 +1,18 @@
-use std::io::BufReader;
 use std::fs::read_dir;
-use std::io::BufRead;
 use std::path::Path;
 use std::ffi::OsStr;
-use std::io::Error;
-use std::fs::File;
 use pyo3::prelude::*;
 
 // some functionalities for data generating
-// extract random fragments from proteins collection
 
 static AA_CODES: &'static [char] = &['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'];
 static SS_CODES: &'static [char] = &['H', 'E', 'C'];
+
+#[pyfunction]
+pub fn get_extension(file: &str) -> Option<&str>
+{
+    Path::new(file).extension().and_then(OsStr::to_str)
+}
 
 #[pyfunction]
 pub fn check_if_correct(line: &str) -> bool
@@ -40,12 +41,6 @@ pub fn check_if_correct(line: &str) -> bool
 }
 
 #[pyfunction]
-pub fn get_extension(file: &str) -> Option<&str>
-{
-    Path::new(file).extension().and_then(OsStr::to_str)
-}
-
-#[pyfunction]
 pub fn collect_files(directory: &str) -> Vec<String>
 {
     let all = read_dir(directory).unwrap();
@@ -61,26 +56,11 @@ pub fn collect_files(directory: &str) -> Vec<String>
     files
 }
 
-#[pyfunction]
-pub fn read_lines(file: &str) -> Vec<Result<String, Error>>
-{
-    // also check each line 
-    let stream  = File::open(file).expect("Cannot open file");
-    let reader = BufReader::new(stream);
-    let mut lines = Vec::new();
-    for line in reader.lines()
-    {
-        let ok = check_if_correct(&line.as_ref().unwrap().to_string());
-        if ok == true
-        {
-            lines.push(line);
-        }
-    }
-    lines
-}
-
 #[pymodule]
 fn scraper(_: Python, m: &PyModule) -> PyResult<()>
 {
+    m.add_function(wrap_pyfunction!(check_if_correct, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(get_extension, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(collect_files, m)?).unwrap();
     Ok(())
 }
