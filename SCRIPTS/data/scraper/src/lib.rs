@@ -65,7 +65,15 @@ pub fn read_lines(file: &str) -> Vec<String>
 {
     let stream = File::open(Path::new(file)).unwrap();
     let reader = BufReader::new(&stream);
-    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>().unwrap();
+    let all: Vec<String> = reader.lines().collect::<Result<_, _>>().unwrap();
+    let mut lines = Vec::new();
+    for line in all
+    {
+        if check_if_correct(&line) == true
+        {
+            lines.push(line);
+        }
+    }
     lines
 }
 
