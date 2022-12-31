@@ -47,6 +47,7 @@ pub fn check_if_correct(line: &str) -> bool
 #[pyfunction]
 pub fn collect_files(directory: &str) -> Vec<String>
 {
+    // get path for each file
     let all = read_dir(directory).unwrap();
     let mut files = Vec::new();
     for item in all
@@ -77,12 +78,29 @@ pub fn read_lines(file: &str) -> Vec<String>
     lines
 }
 
+#[pyfunction]
+pub fn all_samples(directory: &str) -> Vec<String>
+{
+    let files: Vec<String> = collect_files(directory);
+    let mut samples = Vec::new();
+    for file in files
+    {
+        let lines: Vec<String> = read_lines(&file);
+        for line in lines
+        {
+            samples.push(line);
+        }
+    }
+    samples
+}
+
 #[pymodule]
 fn scraper(_: Python, m: &PyModule) -> PyResult<()>
 {
     m.add_function(wrap_pyfunction!(check_if_correct, m)?).unwrap();
     m.add_function(wrap_pyfunction!(get_extension, m)?).unwrap();
     m.add_function(wrap_pyfunction!(collect_files, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
     m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
     Ok(())
 }
