@@ -101,6 +101,6 @@ fn scraper(_: Python, m: &PyModule) -> PyResult<()>
     m.add_function(wrap_pyfunction!(get_extension, m)?).unwrap();
     m.add_function(wrap_pyfunction!(collect_files, m)?).unwrap();
     m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(all_samples, m)?).unwrap();
     Ok(())
 }
