@@ -21,7 +21,7 @@ pub fn get_extension(file: &str) -> Option<&str>
 #[pyfunction]
 pub fn check_if_correct(line: &str) -> bool
 {
-    let mut ok = true;
+    let mut correct = true;
     // split line into vector of strings
     let elements: Vec<&str> = line.split_whitespace().collect();
     // get amino acids and secondary structure vectors
@@ -31,17 +31,17 @@ pub fn check_if_correct(line: &str) -> bool
     {
         if !AA_CODES.contains(&aa)
         {
-            ok = false;
+            correct = false;
         }
     }
     for ss in ss
     {
         if !SS_CODES.contains(&ss)
         {
-            ok = false;
+            correct = false;
         }
     }
-    ok
+    correct
 }
 
 #[pyfunction]
@@ -75,12 +75,14 @@ pub fn read_lines(file: &str) -> Vec<String>
             lines.push(line);
         }
     }
+    lines.remove(0);
     lines
 }
 
 #[pyfunction]
 pub fn all_samples(directory: &str) -> Vec<String>
 {
+    // iterate over all files and get lines with data
     let files: Vec<String> = collect_files(directory);
     let mut samples = Vec::new();
     for file in files
