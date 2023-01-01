@@ -70,12 +70,12 @@ pub fn read_lines(file: &str) -> Vec<String>
     let mut lines = Vec::new();
     for line in all
     {
+        // headlines are removed automatically
         if check_if_correct(&line) == true
         {
             lines.push(line);
         }
     }
-    lines.remove(0);
     lines
 }
 
