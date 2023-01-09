@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", type=str, help="model to be used")
     parser.add_argument("-l", "--labels", type=str, help="sequences and secondary structures saved in a binary format")
+    parser.add_argument("-g", "--graphs", type=eval, choices=[True, False], help="make plots choice", default=False)
     args = parser.parse_args()
 
     np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -29,6 +30,9 @@ if __name__ == "__main__":
     label_dim = np.shape(labels)[1] 
 
     label = tf.keras.layers.Input(shape=(label_dim,)) # define input layer
+
+    aa = [extract_ss(vector) for vector in labels]
+    ss = [extract_ss(vector) for vector in labels] 
 
     # latent space processing
     latent_variables = np.load(f"{model}/latent.npy")
@@ -47,34 +51,38 @@ if __name__ == "__main__":
     raw_output = decoder.predict(tf.keras.layers.concatenate([latent_sample, labels]))
     outputs = [Output(vector) for vector in raw_output]
 
-    # get secondary structures from labels 
-    ss = [extract_ss(vector) for vector in labels] 
+    os.makedirs(f"{model}/pdb")
 
-    # secondary structure connected with plane and dihedral angles
-    angles = np.concatenate([angles_distribution(ss, output) for ss, output in zip(ss, outputs)]) 
+    for output, aa, ss in zip(outputs, aa, ss):
+        pdb_file = open(f"{model}/pdb/{aa}_{ss}.pdb", "a")
+        lines = output.to_pdb()
+        for line in lines:
+            print(line, file=pdb_file)
 
-    h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
+    if args.graphs == True:
+        # secondary structure connected with plane and dihedral angles
+        angles = np.concatenate([angles_distribution(ss, output) for ss, output in zip(ss, outputs)]) 
 
-    h_alpha = [float(angle[0]) for angle in h_angles]
-    h_theta = [float(angle[1]) for angle in h_angles]
+        h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
 
-    e_alpha = [float(angle[0]) for angle in e_angles]
-    e_theta = [float(angle[1]) for angle in e_angles]
+        h_alpha = [float(angle[0]) for angle in h_angles]
+        h_theta = [float(angle[1]) for angle in h_angles]
 
-    c_alpha = [float(angle[0]) for angle in c_angles]
-    c_theta = [float(angle[1]) for angle in c_angles]
+        e_alpha = [float(angle[0]) for angle in e_angles]
+        e_theta = [float(angle[1]) for angle in e_angles]
 
-    # generate plots and save them in created directory
+        c_alpha = [float(angle[0]) for angle in c_angles]
+        c_theta = [float(angle[1]) for angle in c_angles]
 
-    os.makedirs(f"{model}/graphs")
+        os.makedirs(f"{model}/graphs")
 
-    alpha_histogram(h_alpha, f"{model}/graphs//h_alpha")
-    theta_histogram(h_theta, f"{model}/graphs/h_theta")
-    
-    alpha_histogram(e_alpha, f"{model}/graphs/e_alpha")
-    theta_histogram(e_theta, f"{model}/graphs/e_theta")
+        alpha_histogram(h_alpha, f"{model}/graphs//h_alpha")
+        theta_histogram(h_theta, f"{model}/graphs/h_theta")
+        
+        alpha_histogram(e_alpha, f"{model}/graphs/e_alpha")
+        theta_histogram(e_theta, f"{model}/graphs/e_theta")
 
-    alpha_histogram(c_alpha, f"{model}/graphs/c_alpha")
-    theta_histogram(c_theta, f"{model}/graphs/c_theta")
+        alpha_histogram(c_alpha, f"{model}/graphs/c_alpha")
+        theta_histogram(c_theta, f"{model}/graphs/c_theta")
 
-    correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{model}/graphs/correlation")
+        correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{model}/graphs/correlation")
