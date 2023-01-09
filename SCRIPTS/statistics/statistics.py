@@ -87,14 +87,18 @@ def one_hot_to_string(vector, codes):
 
 
 def angles_distribution(ss, output: Output):
-    # return plane and dihedral angles corresponding to secondary structure
     alpha = output.alpha()
     theta = output.theta()
     return [[ss, alpha, theta] for ss, alpha, theta in zip(ss, alpha, theta)]
 
 
+def extract_aa(vector):
+    n = int(len(vector) / 23)
+    ORDINAL = 20 * n
+    return one_hot_to_string(vector[:ORDINAL], codes="ARNDCQEGHILKMFPSTWYV")
+
+
 def extract_ss(vector):
-    # get secondary structure from label vector
     n = int(len(vector) / 23) 
     ORDINAL = 20 * n 
     return one_hot_to_string(vector[ORDINAL:], codes="HEC")
