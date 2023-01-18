@@ -8,14 +8,12 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
-from statistics.graphs import *
 from statistics.statistics import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", type=str, help="model to be used")
     parser.add_argument("-l", "--labels", type=str, help="sequences and secondary structures saved in a binary format")
-    parser.add_argument("-g", "--graphs", type=eval, choices=[True, False], help="make plots choice", default=False)
     args = parser.parse_args()
 
     np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -58,31 +56,3 @@ if __name__ == "__main__":
         lines = output.to_pdb()
         for line in lines:
             print(line, file=pdb_file)
-
-    if args.graphs == True:
-        # secondary structure connected with plane and dihedral angles
-        angles = np.concatenate([angles_distribution(ss, output) for ss, output in zip(ss, outputs)]) 
-
-        h_angles, e_angles, c_angles = hec_distribution(angles)[0], hec_distribution(angles)[1], hec_distribution(angles)[2]
-
-        h_alpha = [float(angle[0]) for angle in h_angles]
-        h_theta = [float(angle[1]) for angle in h_angles]
-
-        e_alpha = [float(angle[0]) for angle in e_angles]
-        e_theta = [float(angle[1]) for angle in e_angles]
-
-        c_alpha = [float(angle[0]) for angle in c_angles]
-        c_theta = [float(angle[1]) for angle in c_angles]
-
-        os.makedirs(f"{model}/graphs")
-
-        alpha_histogram(h_alpha, f"{model}/graphs//h_alpha")
-        theta_histogram(h_theta, f"{model}/graphs/h_theta")
-        
-        alpha_histogram(e_alpha, f"{model}/graphs/e_alpha")
-        theta_histogram(e_theta, f"{model}/graphs/e_theta")
-
-        alpha_histogram(c_alpha, f"{model}/graphs/c_alpha")
-        theta_histogram(c_theta, f"{model}/graphs/c_theta")
-
-        correlation_plot(np.concatenate([h_alpha, e_alpha, c_alpha]), np.concatenate([h_theta, e_theta, c_theta]), f"{model}/graphs/correlation")
