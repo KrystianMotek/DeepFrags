@@ -50,7 +50,7 @@ class Output:
 
         atoms = [c_s, c_1, c_2] # list of reconstructed carbons   
 
-        for alpha, theta in zip(alpha[1:], theta[:len(theta)]):
+        for i in range(1, self.n-2):
             c_i = Vec3(x=0.0, y=0.0, z=0.0)
             c_j = Vec3(x=atoms[-2].x, y=atoms[-2].y, z=atoms[-2].z)
             c_k = Vec3(x=atoms[-1].x, y=atoms[-1].y, z=atoms[-1].z)
@@ -60,8 +60,7 @@ class Output:
             c_k.subtract(c_0)
 
             # add next atom
-            z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha), np.radians(theta), c_new)
-
+            z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha[i]), np.radians(theta[i+1]), c_new)
             c_new.add(c_0)
             atoms.append(c_new)
         
@@ -75,7 +74,7 @@ class Output:
         for ordinal, atom in enumerate(self.to_cartesian()):
             x, y, z = atom.to_list()[0], atom.to_list()[1], atom.to_list()[2]
             lines.append("ATOM".ljust(10) + f"{ordinal}".ljust(3) + "CA  XXX  X".ljust(17) + f"{x:.3f}".ljust(8) + f"{y:.3f}".ljust(8) + f"{z:.3f}")
-        return lines[1:-1] # exclude boundary atoms
+        return lines[1:] # exclude first atom
 
 
 def one_hot_to_string(vector, codes):
