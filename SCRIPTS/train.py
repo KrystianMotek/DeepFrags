@@ -57,8 +57,8 @@ if __name__ == "__main__":
     decoder_hidden = parameters["decoder_hidden"]
 
     # load training data
-    inputs = np.load(parameters["inputs"])[:observations]
-    labels = np.load(parameters["labels"])[:observations]
+    inputs = np.load(parameters["inputs"])
+    labels = np.load(parameters["labels"])
 
     # number of features in each tensor
     x_dim = np.shape(inputs)[1]

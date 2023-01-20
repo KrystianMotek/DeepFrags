@@ -50,7 +50,7 @@ class Output:
 
         atoms = [c_s, c_1, c_2] # list of reconstructed carbons   
 
-        for alpha, theta in zip(alpha[1:], theta[1:]):
+        for alpha, theta in zip(alpha[1:], theta[:len(theta)]):
             c_i = Vec3(x=0.0, y=0.0, z=0.0)
             c_j = Vec3(x=atoms[-2].x, y=atoms[-2].y, z=atoms[-2].z)
             c_k = Vec3(x=atoms[-1].x, y=atoms[-1].y, z=atoms[-1].z)
@@ -60,10 +60,13 @@ class Output:
             c_k.subtract(c_0)
 
             # add next atom
-            z_matrix_to_cartesian(c_i, c_j, c_k, np.linalg.norm(self.displacement()), np.radians(alpha), np.radians(theta), c_new)
+            z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha), np.radians(theta), c_new)
 
             c_new.add(c_0)
             atoms.append(c_new)
+        
+        c_terminal = Vec3(x=self.displacement()[0], y=self.displacement()[1], z=self.displacement()[2])
+        atoms.append(c_terminal)
 
         return atoms
 
