@@ -121,10 +121,22 @@ pub fn z_matrix_to_cartesian(atom_3: &mut Vec3, atom_2: &mut Vec3, atom_1: &mut 
     new_atom.add(atom_1); 
 }
 
+#[pyfunction]
+pub fn local_coordinates_three_atoms(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Vec3)
+{
+    atom_2.subtract(atom_1);
+    atom_3.subtract(atom_1);
+
+    atom_1.x = 0.0;
+    atom_1.y = 0.0;
+    atom_1.z = 0.0;
+}
+
 #[pymodule]
 fn coordinates(_: Python, m: &PyModule) -> PyResult<()>
 {
     m.add_class::<Vec3>()?;
     m.add_function(wrap_pyfunction!(z_matrix_to_cartesian, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(local_coordinates_three_atoms, m)?).unwrap();
     Ok(())
 }
