@@ -61,9 +61,7 @@ class Output:
 
             z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha), np.radians(theta), c_new)
 
-            c_new.x += atoms[-3].x 
-            c_new.y += atoms[-3].y
-            c_new.z += atoms[-3].z
+            c_new.add(atoms[-3])
             atoms.append(c_new)
 
         c_terminal = Vec3(x=self.displacement()[0], y=self.displacement()[1], z=self.displacement()[2])
