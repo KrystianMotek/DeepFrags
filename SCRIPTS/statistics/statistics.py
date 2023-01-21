@@ -1,6 +1,6 @@
 import numpy as np
 from coordinates import Vec3
-from coordinates import z_matrix_to_cartesian
+from coordinates import z_matrix_to_cartesian, local_coordinates_three_atoms
 
 
 class Output:
@@ -50,20 +50,22 @@ class Output:
 
         atoms = [c_s, c_1, c_2] # list of reconstructed carbons   
 
-        for i in range(1, self.n-2):
-            c_i = Vec3(x=0.0, y=0.0, z=0.0)
+        for alpha, theta in zip(alpha[1:self.n-2], theta[2:self.n-1]):
+            c_i = Vec3(x=atoms[-3].x, y=atoms[-3].y, z=atoms[-3].z)
             c_j = Vec3(x=atoms[-2].x, y=atoms[-2].y, z=atoms[-2].z)
             c_k = Vec3(x=atoms[-1].x, y=atoms[-1].y, z=atoms[-1].z)
-            c_0 = Vec3(x=atoms[-3].x, y=atoms[-3].y, z=atoms[-3].z)
-            c_new = Vec3(x=9.999, y=9.999, z=9.999)
-            c_j.subtract(c_0)
-            c_k.subtract(c_0)
 
-            # add next atom
-            z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha[i]), np.radians(theta[i+1]), c_new)
-            c_new.add(c_0)
+            local_coordinates_three_atoms(c_i, c_j, c_k)
+
+            c_new = Vec3(x=9.999, y=9.999, z=9.999)
+
+            z_matrix_to_cartesian(c_i, c_j, c_k, bond_length, np.radians(alpha), np.radians(theta), c_new)
+
+            c_new.x += atoms[-3].x 
+            c_new.y += atoms[-3].y
+            c_new.z += atoms[-3].z
             atoms.append(c_new)
-        
+
         c_terminal = Vec3(x=self.displacement()[0], y=self.displacement()[1], z=self.displacement()[2])
         atoms.append(c_terminal)
 
