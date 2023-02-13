@@ -1,0 +1,12 @@
+[package]
+name = "statistical"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "statistical"
+crate-type = ["rlib"]
+
+[dependencies]
+pyo3 = { version = "0.17.3", features = ["extension-module"] }
+structural = { path = "../structural" }
