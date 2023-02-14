@@ -155,22 +155,20 @@ class Trainer:
         work_directory = os.path.dirname(self.config)
 
         # models and obtained weights
-        self.model.encoder.save(f"{work_directory}/encoder.h5")
-        self.model.decoder.save(f"{work_directory}/decoder.h5")
-        self.model.save_weights(f"{work_directory}/weights.h5")
+        self.model.encoder.save(f"{work_directory}/encoder.pb")
+        self.model.decoder.save(f"{work_directory}/decoder.pb")
+        self.model.save_weights(f"{work_directory}/weights.pb")
 
         # latent space variables
         np.save(f"{work_directory}/latent.npy", self.model.encode(self.training_inputs, self.training_labels))
     
 
 class DecoderLoader:
-    def __init__(self, decoder, weights, latent):
+    def __init__(self, decoder, latent):
         self.decoder = decoder
-        self.weights = weights
         self.latent = latent
         
         self.decoder = tf.keras.models.load_model(self.decoder)
-        self.decoder.load_weights(self.weights, by_name=True, skip_mismatch=True)
 
         self.latent_processing() # load samples from the latent space
 

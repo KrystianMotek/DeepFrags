@@ -1,4 +1,5 @@
 import argparse
+import logging
 from model import DecodeLoader
 from features import LabelMLP
 from statistical import Output
@@ -11,20 +12,21 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--model", type=str, help="model to be used")
     args = parser.parse_args()
 
+    logging.getLogger("tensorflow").disabled=True
+    logging.getLogger("h5py._conv").disabled=True
+
     aa = args.aa 
     ss = args.ss 
     range = args.range
     model = args.model 
 
-    # read files with trained parameters
     decoder = f"{model}/decoder.h5"
-    weights = f"{model}/weights.h5"
     latent = f"{model}/latent.npy"
 
     label = LabelMLP(aa=aa, ss=aa, r1n=range)
 
     # load model and predict values
-    loader = DecodeLoader(decoder=decoder, weights=weights, latent=latent)
+    loader = DecodeLoader(decoder=decoder, latent=latent)
     vector = loader.predict(label.format(), 3.8)
 
     # change results to PDB format
