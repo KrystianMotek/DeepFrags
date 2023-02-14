@@ -154,10 +154,8 @@ class Trainer:
     def save(self):
         work_directory = os.path.dirname(self.config)
 
-        # models and obtained weights
         self.model.encoder.save(f"{work_directory}/encoder.pb")
         self.model.decoder.save(f"{work_directory}/decoder.pb")
-        self.model.save_weights(f"{work_directory}/weights.pb")
 
         # latent space variables
         np.save(f"{work_directory}/latent.npy", self.model.encode(self.training_inputs, self.training_labels))
