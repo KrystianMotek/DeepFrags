@@ -50,5 +50,5 @@ if __name__ == "__main__":
     for line in lines:
         print(line)
 
-    print(f"{matching_output.compute_r1n():.2f}")
-    print(f"{np.std(errors):.2f}")
+    print(f"{matching_output.compute_r1n():.3f}")
+    print(f"{np.std(errors):.3f}")

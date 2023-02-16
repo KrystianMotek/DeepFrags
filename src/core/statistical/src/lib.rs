@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use structural::{Vec3, sin_cos_to_angle, to_radians, angles_to_cartesian};
 
 #[pyclass]
@@ -8,6 +9,15 @@ pub struct Output
     vector: Vec<f64>,
     #[pyo3(get, set)]
     bond_length: f64,
+}
+
+#[pyclass]
+pub struct Histogram
+{
+    #[pyo3(get, set)]
+    data: Vec<f64>,
+    #[pyo3(get, set)]
+    bins: i32,
 }
 
 #[pymethods]
@@ -142,9 +152,49 @@ impl Output
     }
 }
 
+#[pymethods]
+impl Histogram
+{
+    #[new]
+    pub fn new(data: Vec<f64>, bins: i32) -> Self
+    {
+        Histogram{data, bins}
+    }
+
+    pub fn split(&self) -> HashMap<i32, Vec<f64>>
+    {
+        let min: f64 = *self.data.iter().min_by(|a, b| a.total_cmp(b)).unwrap();
+        let max: f64 = *self.data.iter().max_by(|a, b| a.total_cmp(b)).unwrap();
+        let pointer: f64 = (max - min) / (self.bins as f64);
+        let mut results = HashMap::new();
+        let mut i: f64 = min;
+        let mut j: i32 = 1;
+        while i < max
+        {
+            let mut range = Vec::new();
+            for element in self.data.iter()
+            {
+                if element > &i && element <= &(i + pointer)
+                {
+                    range.push(element.clone());
+                }
+            }
+            if j == 1
+            {
+                range.push(min);
+            }
+            results.insert(j, range);
+            j += 1;
+            i += pointer;
+        }
+        results
+    }
+}
+
 #[pymodule]
 fn statistical(_: Python, m: &PyModule) -> PyResult<()>
 {
     m.add_class::<Output>()?;
+    m.add_class::<Histogram>()?;
     Ok(())
 }
