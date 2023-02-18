@@ -238,6 +238,13 @@ pub fn angles_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Ve
     new_atom
 }
 
+#[pyfunction]
+pub fn euler_angles(row_x: Vec<f64>, row_y: Vec<f64>, row_z: Vec<f64>) -> Vec<f64>
+{
+    let angles = vec![(-1.0) * row_z[0].asin(), atan2(row_z[1], row_z[2]), atan2(row_y[0], row_x[0])];
+    angles
+}
+
 #[pymodule]
 fn structural(_: Python, m: &PyModule) -> PyResult<()>
 {
@@ -252,5 +259,6 @@ fn structural(_: Python, m: &PyModule) -> PyResult<()>
     m.add_function(wrap_pyfunction!(compute_theta, m)?).unwrap();
     m.add_function(wrap_pyfunction!(sin_cos_to_angle, m)?).unwrap();
     m.add_function(wrap_pyfunction!(angles_to_cartesian, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(euler_angles, m)?).unwrap();
     Ok(())
 }
