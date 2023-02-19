@@ -102,12 +102,12 @@ pub fn two_atoms_vector(atom_1: &Vec3, atom_2: &Vec3) -> Vec3
 }
 
 #[pyfunction]
-pub fn compute_alpha(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3) -> f64
+pub fn compute_planar(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3) -> f64
 {
     let v_12 = two_atoms_vector(&atom_1, &atom_2);
     let v_23 = two_atoms_vector(&atom_2, &atom_3);
-    let alpha: f64 = (dot_product(&v_12, &v_23) / (v_12.length() * v_23.length())).acos();
-    to_degrees(alpha)
+    let planar: f64 = (dot_product(&v_12, &v_23) / (v_12.length() * v_23.length())).acos();
+    to_degrees(planar)
 }
 
 #[pyfunction]
@@ -140,7 +140,7 @@ pub fn atan2(y: f64, x: f64) -> f64
 }
 
 #[pyfunction]
-pub fn compute_theta(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3, atom_4: &Vec3) -> f64
+pub fn compute_dihedral(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3, atom_4: &Vec3) -> f64
 {
     let mut v_12 = two_atoms_vector(&atom_1, &atom_2);
     let mut v_23 = two_atoms_vector(&atom_2, &atom_3);
@@ -155,8 +155,8 @@ pub fn compute_theta(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3, atom_4: &Vec3)
     let l = cross_product(&v_23, &v_34);
     let x: f64 = dot_product(&k, &l);
     let y: f64 = dot_product(&v_12, &l);
-    let theta: f64 = atan2(y, x);
-    to_degrees(theta)
+    let dihedral: f64 = atan2(y, x);
+    to_degrees(dihedral)
 }
 
 #[pyfunction]
@@ -247,9 +247,9 @@ fn structural(_: Python, m: &PyModule) -> PyResult<()>
     m.add_function(wrap_pyfunction!(dot_product, m)?).unwrap();
     m.add_function(wrap_pyfunction!(cross_product, m)?).unwrap();
     m.add_function(wrap_pyfunction!(two_atoms_vector, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(compute_alpha, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(compute_planar, m)?).unwrap();
     m.add_function(wrap_pyfunction!(atan2, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(compute_theta, m)?).unwrap();
+    m.add_function(wrap_pyfunction!(compute_dihedral, m)?).unwrap();
     m.add_function(wrap_pyfunction!(sin_cos_to_angle, m)?).unwrap();
     m.add_function(wrap_pyfunction!(angles_to_cartesian, m)?).unwrap();
     Ok(())
