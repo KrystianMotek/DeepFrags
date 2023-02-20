@@ -3,21 +3,17 @@ import argparse
 import logging
 from features import DataSetMLP
 
-# This script reads data from file and converts to binary format
+logging.getLogger("tensorflow").disabled=True
+logging.getLogger("h5py._conv").disabled=True
+
+# read data and convert to binary format
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", type=str, help="path to the data file")
     args = parser.parse_args()
 
-    logging.getLogger("tensorflow").disabled=True
-    logging.getLogger("h5py._conv").disabled=True
-
-    name = os.path.splitext(os.path.basename(args.file))[0]
-
-    # directory where generated files will be stored
-    work_directory = f"{os.path.dirname(args.file)}/{name}"
-    os.makedirs(work_directory)
+    work_directory = f"{os.path.dirname(args.file)}"
 
     data = DataSetMLP(args.file)
     data.save_inputs(f"{work_directory}/inputs.npy")

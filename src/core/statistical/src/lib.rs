@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use structural::{Vec3, sin_cos_to_angle, to_radians, angles_to_cartesian};
+use structural::{Vec3, sin_cos_to_angle, angles_to_cartesian};
 
 #[pyclass]
 pub struct Output
@@ -111,51 +111,42 @@ impl Output
         }
         theta
     }
-
-    pub fn to_cartesian(&self) -> Vec<Vec3>
+    
+    /*
+    pub fn to_cartesian(&self, c_1: Vec3, c_2: Vec3, c_3: Vec3) -> Vec<Vec3>
     {
         let alpha = self.alpha();
         let theta = self.theta();
 
-        let x_1: f64 = self.bond_length * (1.0 + to_radians(180.0 - alpha[0]).cos());
-        let y_1: f64 = self.bond_length * to_radians(180.0 - alpha[0]).sin();
-        let z_1: f64 = 0.0;
-
-        // overhang at the beggining 
-        let c_a = Vec3{x: 0.0, y: 0.0, z: 0.0};
-        let c_b = Vec3{x: 3.8, y: 0.0, z: 0.0};
-
-        let c_1 = Vec3{x: x_1, y: y_1, z: z_1}; // first proper atom 
-
         let start: usize = 3;
         let end: usize = self.n() + 2;
 
-        let mut atoms = vec![c_a, c_b, c_1];
+        let mut atoms = vec![c_1, c_2, c_3];
         for i in start..end
         {
             let mut c_i = atoms[i-3].clone();
             let mut c_j = atoms[i-2].clone();
             let mut c_k = atoms[i-1].clone();
 
-            let mut c_new = angles_to_cartesian(&mut c_i, &mut c_j, &mut c_k, self.bond_length, alpha[i-2], theta[i-2]);
+            let mut c_new = angles_to_cartesian(&mut c_i, &mut c_j, &mut c_k, self.bond_length, alpha[i-3], theta[i-3]);
             c_new.add(&c_k);
             atoms.push(c_new);
         }
         atoms
     }
 
-    pub fn compute_r1n(&self) -> f64
+    pub fn compute_r1n(&self, c_1: Vec3, c_2: Vec3, c_3: Vec3) -> f64
     {
         let n = self.n();
-        let coordinates = self.to_cartesian();
+        let coordinates = self.to_cartesian(c_1, c_2, c_3);
         let mut last_atom = coordinates[n+1].clone();
         last_atom.subtract(&coordinates[2]);
         last_atom.length()
     }
 
-    pub fn to_pdb(&self) -> Vec<String>
+    pub fn to_pdb(&self, c_1: Vec3, c_2: Vec3, c_3: Vec3) -> Vec<String>
     {
-        let coordinates = self.to_cartesian();
+        let coordinates = self.to_cartesian(c_1, c_2, c_3);
 
         let start: usize = 2;
         let end: usize = self.n() + 2;
@@ -173,6 +164,7 @@ impl Output
         }
         lines
     }
+    */
 }
 
 #[pymethods]

@@ -144,8 +144,8 @@ class Trainer:
 
             val_total, val_reconstruction, val_kl = self.losses(self.validation_inputs, self.validation_labels)
 
-            training_message = f"total {total:.4f} reconstruction {reconstruction:.4f} kl {kl:.4f}"
-            validation_message = f"val_total {val_total:.4f} val_reconstruction {val_reconstruction:.4f} val_kl {val_kl:.4f}"
+            training_message = f"total {total:.6f} reconstruction {reconstruction:.6f} kl {kl:.6f}"
+            validation_message = f"val_total {val_total:.6f} val_reconstruction {val_reconstruction:.6f} val_kl {val_kl:.6f}"
             
             logging.info(f"Epoch {epoch+1}/{self.epochs}" + " " + training_message + " " + validation_message)
         
