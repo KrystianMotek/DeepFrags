@@ -103,8 +103,8 @@ class Trainer:
         self.training_inputs = inputs[0:self.split_index]
         self.training_labels = labels[0:self.split_index]
 
-        self.validation_inputs = inputs[self.split_index:]
-        self.validation_labels = labels[self.split_index:]
+        self.validation_inputs = inputs[self.split_index:self.observations]
+        self.validation_labels = labels[self.split_index:self.observations]
 
     def losses(self, inputs, labels):
         # pass data through the network
