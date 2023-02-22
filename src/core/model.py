@@ -12,11 +12,11 @@ import numpy as np
 
 
 def kl_loss(mean, log_variance):
-    return tf.reduce_mean(0.5 * (tf.square(mean) + tf.exp(log_variance) - log_variance - 1))
+    return tf.reduce_mean(0.5 * tf.reduce_sum(tf.square(mean) + tf.exp(log_variance) - log_variance - 1))
 
 
 def reconstruction_loss(x, x_reconstructed):
-    return tf.reduce_mean(tf.keras.losses.mean_squared_error(x, x_reconstructed))
+    return tf.reduce_mean(tf.reduce_sum(tf.keras.losses.mean_squared_error(x, x_reconstructed)))
 
 
 def latent_sample(mean, log_variance):
