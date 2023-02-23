@@ -45,8 +45,7 @@ class Label(ABC):
     def __init__(self, aa, ss, r1n):
         self.aa = aa
         self.ss = ss
-        # distance between bound atoms
-        self.r1n = r1n
+        self.r1n = r1n # distance between bound atoms
 
     @abstractmethod
     def format(self):
@@ -67,10 +66,13 @@ class Label(ABC):
         string = self.ss
         return self.string_to_one_hot(string, codes="HEC")
     
+    def reshape_r1n(self):
+        return tf.reshape(self.r1n, shape=(1, 1))
+    
 
 class LabelMLP(Label):
     def format(self):
-        return tf.concat([tf.reshape(self.r1n, shape=(1, 1)), self.encode_aa(), self.encode_ss()], axis=1)
+        return tf.concat([self.reshape_r1n(), self.encode_aa(), self.encode_ss()], axis=1)
 
 
 class Observation(ABC):

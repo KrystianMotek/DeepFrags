@@ -162,8 +162,7 @@ class Trainer:
         
         self.model.encoder.save_weights(f"{work_directory}/encoder_weights.h5")
         self.model.decoder.save_weights(f"{work_directory}/decoder_weights.h5")
-
-        # latent space variables
+        
         np.save(f"{work_directory}/latent.npy", self.model.encode(self.training_inputs, self.training_labels))
     
 
@@ -174,13 +173,8 @@ class DecoderLoader:
         
         self.decoder = tf.keras.models.load_model(self.decoder)
 
-        self.latent_processing() # load samples from the latent space
-
-    def latent_processing(self):
-        latent_variables = np.load(self.latent)
-        mean, log_variance = latent_variables[0], latent_variables[1]
-        self.z = latent_sample(mean, log_variance)
+        self.latent = np.load(self.latent)[0]
 
     def predict(self, labels):
-        z = np.array(random.sample(list(self.z), len(labels)))
+        z = np.array(random.sample(list(self.latent), len(labels)))
         return self.decoder.predict(tf.keras.layers.concatenate([z, labels]))

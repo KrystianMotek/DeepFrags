@@ -9,12 +9,8 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--path", type=str, help="path to the directory")
     args = parser.parse_args()
 
-    path = args.path
+    file = open(f"{os.path.dirname(args.path)}/fragments.dat", "a")
 
-    file = f"{os.path.dirname(path)}/fragments.dat"
-    file = open(file, "a")
-
-    lines = all_samples(path)
-    
+    lines = all_samples(args.path)
     for line in lines:
         print(line, file=file) 

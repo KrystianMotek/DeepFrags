@@ -15,6 +15,30 @@ pub struct Vec3
     pub z: f64,
 }
 
+#[pyclass]
+#[derive(Clone)]
+pub struct Output
+{
+    // dedicated to raw output processing
+    #[pyo3(get, set)]
+    vector: Vec<f64>,
+    #[pyo3(get, set)]
+    bond_length: f64,
+}
+
+#[pyclass]
+pub struct Fragment
+{
+    #[pyo3(get, set)]
+    c_1: Vec3,
+    #[pyo3(get, set)]
+    c_2: Vec3,
+    #[pyo3(get, set)]
+    c_3: Vec3,
+    #[pyo3(get, set)]
+    output: Output,
+}
+
 #[pymethods]
 impl Vec3
 {
@@ -62,6 +86,142 @@ impl Vec3
         self.x -= vector.x;
         self.y -= vector.y;
         self.z -= vector.z;
+    }
+}
+
+#[pymethods]
+impl Output
+{
+    #[new]
+    pub fn new(vector: Vec<f64>, bond_length: f64) -> Self
+    {
+        Output{vector, bond_length}
+    }
+
+    pub fn n(&self) -> usize
+    {
+        (self.vector.len() / 3).try_into().unwrap()
+    }
+
+    pub fn alpha(&self) -> Vec<f64>
+    {
+        let start: usize = 0;
+        let end: usize = self.n();
+
+        let mut alpha: Vec<f64> = vec![];
+        for i in start..end
+        {
+            alpha.push(self.vector[i] * 180.0); // because original data are normalized
+        }
+        alpha
+    }
+
+    pub fn sin_theta(&self) -> Vec<f64>
+    {
+        let start: usize = self.n();
+        let end: usize = 2 * self.n();
+
+        let mut sin_theta: Vec<f64> = vec![];
+        for i in start..end
+        {
+            sin_theta.push(self.vector[i]);
+        }
+        sin_theta
+    }
+
+    pub fn cos_theta(&self) -> Vec<f64>
+    {
+        let start: usize = 2 * self.n();
+        let end: usize = self.vector.len();
+
+        let mut cos_theta: Vec<f64> = vec![];
+        for i in start..end
+        {
+            cos_theta.push(self.vector[i]);
+        }
+        cos_theta
+    }
+
+    pub fn theta(&self) -> Vec<f64>
+    {
+        let sin_theta = self.sin_theta();
+        let cos_theta = self.cos_theta();
+
+        let mut theta: Vec<f64> = vec![];
+        for i in 0..self.n()
+        {
+            let sin: f64 = sin_theta[i];
+            let cos: f64 = cos_theta[i];
+            let angle: f64 = sin_cos_to_angle(sin, cos);
+            theta.push(angle);
+        }
+        theta
+    }
+}
+
+#[pymethods]
+impl Fragment
+{
+    #[new]
+    pub fn new(c_1: Vec3, c_2: Vec3, c_3: Vec3, output: Output) -> Self
+    {
+        Fragment{c_1, c_2, c_3, output}
+    }
+
+    pub fn to_cartesian(&self) -> Vec<Vec3>
+    {
+        let n = self.output.n();
+        let alpha = self.output.alpha();
+        let theta = self.output.theta();
+
+        let start: usize = 3;
+        let end: usize = n + 3;
+
+        let mut atoms = vec![self.c_1.clone(), self.c_2.clone(), self.c_3.clone()];
+        for i in start..end
+        {
+            let mut c_i = atoms[i-3].clone();
+            let mut c_j = atoms[i-2].clone();
+            let mut c_k = atoms[i-1].clone();
+
+            let bond_length = self.output.bond_length;
+
+            let mut c_new = angles_to_cartesian(&mut c_i, &mut c_j, &mut c_k, bond_length, alpha[i-3], theta[i-3]);
+            c_new.add(&c_k);
+            atoms.push(c_new);
+        }
+        atoms
+    }
+
+    pub fn compute_r1n(&self) -> f64
+    {
+        let n = self.output.n();
+        let coordinates = self.to_cartesian();
+        let mut last_atom = coordinates[n+2].clone();
+        last_atom.subtract(&coordinates[3]);
+        last_atom.length()
+    }
+
+    pub fn to_pdb(&self) -> Vec<String>
+    {
+        let n = self.output.n();
+        let coordinates = self.to_cartesian();
+
+        let start: usize = 0;
+        let end: usize = n + 3;
+
+        let mut lines = Vec::new();
+        for i in start..end
+        {
+            let atom = &coordinates[i];
+            let index = i + 1;
+            let x = atom.to_list()[0];
+            let y = atom.to_list()[1];
+            let z = atom.to_list()[2];
+            let line = format!("ATOM {:>6} CA XXX X {:>16.3} {:>8.3} {:>8.3}", index.to_string(), x, y, z);
+            lines.push(line);
+        }
+        lines
     }
 }
 
@@ -242,6 +402,8 @@ pub fn angles_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Ve
 fn structural(_: Python, m: &PyModule) -> PyResult<()>
 {
     m.add_class::<Vec3>()?;
+    m.add_class::<Output>()?;
+    m.add_class::<Fragment>()?;
     m.add_function(wrap_pyfunction!(to_degrees, m)?).unwrap();
     m.add_function(wrap_pyfunction!(to_radians, m)?).unwrap();  
     m.add_function(wrap_pyfunction!(dot_product, m)?).unwrap();
