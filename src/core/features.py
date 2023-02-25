@@ -126,7 +126,7 @@ class ObservationMLP(Observation):
 class DataSet(ABC):
     def __init__(self, file):
         self.file = file
-        stream = open(file, "r")
+        stream = open(file)
         self.lines = [line for line in stream.readlines()] # read line by line
         stream.close()
 
