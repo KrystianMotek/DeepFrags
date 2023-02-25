@@ -4,10 +4,9 @@ from structural import Vec3, two_atoms_vector
 RESIDUES = {"A": "ALA", "R": "ARG", "N": "ASN", "D": "ASP", "C": "CYS", "Q": "GLN", "E": "GLU", "G": "GLY", "H": "HIS", "I": "ILE", "L": "LEU", "K": "LYS", "M": "MET", "F": "PHE", "P": "PRO", "S": "SER", "T": "THR", "W": "TRP", "Y": "TYR", "V": "VAL"}
 
 
-class Atom:
-    def __init__(self, id, name, residue, chain_name, residue_id, coordinates: Vec3):
+class CarbonAlpha:
+    def __init__(self, id, residue, chain_name, residue_id, coordinates):
         self.id = id
-        self.name = name
         self.residue = residue
         self.chain_name = chain_name
         self.residue_id = residue_id
@@ -16,65 +15,23 @@ class Atom:
         self.x = self.coordinates.x
         self.y = self.coordinates.y
         self.z = self.coordinates.z
-    
+
     def __str__(self):
-        string = "ATOM"
-        string.join(f"{self.id}".rjust(11))
-        string.join(f"{self.name}".ljust(4))
-        return string
+        pass
 
-        # ATOM     12  CA  SER A   2      49.138  29.147  10.620  1.00 15.00           C
-
-    def check_if_ca(self):
-        return self.name == "CA"
-    
 
 class Structure:
-    def __init__(self, atoms: List[Atom]):
+    def __init__(self, atoms):
         self.atoms = atoms
-
-    def local_distance(self, index_1, index_2):
-        atom_1 = self.atoms[index_1]
-        atom_2 = self.atoms[index_2]
-        vector = two_atoms_vector(atom_1, atom_2)
+    
+    def to_pdb(self):
+        return [atom.__str__() for atom in self.atoms]
+    
+    def local_distance(self, i, j):
+        coordinates_i = self.atoms[i-1].coordinates
+        coordinates_j = self.atoms[j-1].coordinates
+        vector = two_atoms_vector(coordinates_i, coordinates_j)
         return vector.length()
-
-    def extract_ca(self):
-        self.atoms = [atom for atom in self.atoms if atom.check_if_ca()]
-
-
-class PdbLine:
-    def __init__(self, line: str):
-        self.line = line # only ATOM records are allowed
-    
-    def read_id(self):
-        ORDINAL = 1
-        return self.line.split()[ORDINAL]
-    
-    def read_name(self):
-        ORDINAL = 2
-        return self.line.split()[ORDINAL]
-    
-    def read_residue(self):
-        ORDINAL = 3
-        return self.line.split()[ORDINAL]
-    
-    def read_chain_name(self):
-        ORDINAL = 4
-        return self.line.split()[ORDINAL]
-
-    def read_residue_id(self):
-        ORDINAL = 5
-        return self.line.split()[ORDINAL]
-    
-    def read_coordinates(self):
-        ORDINAL_X = 6
-        ORDINAL_Y = 7
-        ORDINAL_Z = 8
-        return Vec3(x=self.line.split()[ORDINAL_X], y=self.line.split()[ORDINAL_Y], z=self.line.split()[ORDINAL_Z]) 
-    
-    def load_atom(self):
-        return Atom(id=self.read_id(), name=self.read_name(), residue=self.read_residue(), chain_name=self.read_chain_name(), residue_id=self.read_residue_id(), coordinates=self.read_coordinates())
 
 
 class FileParser:
@@ -83,14 +40,5 @@ class FileParser:
         self.stream = open(self.file)
         self.lines = self.stream.readlines()
 
-    def parse_records(self) -> List[PdbLine]:
-        records = []
-        for line in self.lines:
-            if line.split()[0] == "ATOM":
-                records.append(PdbLine(line=line))
-            if line.split()[0] != "ATOM" and len(records) > 0:
-                break
-        return records
-    
     def load_structure(self):
-        return Structure(atoms=[record.load_atom() for record in self.parse_records()])
+        pass

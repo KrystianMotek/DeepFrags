@@ -7,7 +7,6 @@ use std::fs::File;
 use pyo3::prelude::*;
 
 // some functionalities for data generating
-// extract random fragments from proteins collection
 
 static AA_CODES: &'static [char] = &['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'];
 static SS_CODES: &'static [char] = &['H', 'E', 'C'];
@@ -21,8 +20,7 @@ pub fn get_extension(file: &str) -> Option<&str>
 #[pyfunction]
 pub fn check_if_correct(line: &str) -> bool
 {
-    // split line into vector of strings
-    let elements: Vec<&str> = line.split_whitespace().collect();
+    let elements: Vec<&str> = line.split_whitespace().collect();  // split line into vector of strings
 
     // get amino acids and secondary structure vectors
     let aa: Vec<char> = elements[4].chars().collect();
@@ -49,7 +47,6 @@ pub fn check_if_correct(line: &str) -> bool
 #[pyfunction]
 pub fn collect_files(directory: &str) -> Vec<String>
 {
-    // get path for each file
     let all = read_dir(directory).unwrap();
     let mut files = Vec::new();
     for item in all
@@ -84,7 +81,6 @@ pub fn read_lines(file: &str) -> Vec<String>
 #[pyfunction]
 pub fn all_samples(directory: &str) -> Vec<String>
 {
-    // iterate over all files and get lines with data
     let files: Vec<String> = collect_files(directory);
     let mut samples = Vec::new();
     for file in files
