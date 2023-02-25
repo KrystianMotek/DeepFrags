@@ -94,7 +94,8 @@ impl Output
         let mut alpha: Vec<f64> = vec![];
         for i in start..end
         {
-            alpha.push(self.vector[i] * 180.0); // because original data are normalized
+            // because original data are normalized
+            alpha.push(self.vector[i] * 180.0); 
         }
         alpha
     }

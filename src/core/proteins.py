@@ -18,15 +18,19 @@ class Atom:
         self.z = self.coordinates.z
     
     def __str__(self):
-        pass
+        string = "ATOM"
+        string.join(f"{self.id}".rjust(11))
+        string.join(f"{self.name}".ljust(4))
+        return string
+
+        # ATOM     12  CA  SER A   2      49.138  29.147  10.620  1.00 15.00           C
 
     def check_if_ca(self):
         return self.name == "CA"
     
 
 class Structure:
-    def __init__(self, id, atoms: List[Atom]):
-        self.id = id
+    def __init__(self, atoms: List[Atom]):
         self.atoms = atoms
 
     def local_distance(self, index_1, index_2):
@@ -78,3 +82,15 @@ class FileParser:
         self.file = file
         self.stream = open(self.file)
         self.lines = self.stream.readlines()
+
+    def parse_records(self) -> List[PdbLine]:
+        records = []
+        for line in self.lines:
+            if line.split()[0] == "ATOM":
+                records.append(PdbLine(line=line))
+            if line.split()[0] != "ATOM" and len(records) > 0:
+                break
+        return records
+    
+    def load_structure(self):
+        return Structure(atoms=[record.load_atom() for record in self.parse_records()])
