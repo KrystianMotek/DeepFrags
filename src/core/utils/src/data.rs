@@ -20,9 +20,7 @@ pub fn get_extension(file: &str) -> Option<&str>
 #[pyfunction]
 pub fn check_if_correct(line: &str) -> bool
 {
-    let elements: Vec<&str> = line.split_whitespace().collect();  // split line into vector of strings
-
-    // get amino acids and secondary structure vectors
+    let elements: Vec<&str> = line.split_whitespace().collect();  
     let aa: Vec<char> = elements[4].chars().collect();
     let ss: Vec<char> = elements[5].chars().collect();
 
@@ -69,10 +67,9 @@ pub fn read_lines(file: &str) -> Vec<String>
     let mut lines = Vec::new();
     for line in all
     {
-        // headlines are removed automatically
         if check_if_correct(&line) == true
         {
-            lines.push(line);
+            lines.push(line); 
         }
     }
     lines
@@ -92,15 +89,4 @@ pub fn all_samples(directory: &str) -> Vec<String>
         }
     }
     samples
-}
-
-#[pymodule]
-fn data(_: Python, m: &PyModule) -> PyResult<()>
-{
-    m.add_function(wrap_pyfunction!(check_if_correct, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(get_extension, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(collect_files, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(read_lines, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(all_samples, m)?).unwrap();
-    Ok(())
 }

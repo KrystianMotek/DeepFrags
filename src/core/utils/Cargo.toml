@@ -1,10 +1,10 @@
 [package]
-name = "structural"
+name = "utils"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "structural"
+name = "utils"
 crate-type = ["rlib"]
 
 [dependencies.pyo3]

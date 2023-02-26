@@ -4,11 +4,21 @@ import numpy as np
 from proteins import FileParser
 from model import DecoderLoader
 from features import LabelMLP
-from statistical import Output
+from utils.structural import Output
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", type=str, help="PDB file")
+    parser.add_argument("-s", "--start", type=int)
+    parser.add_argument("-e", "--end", type=int)
+    parser.add_argument("-p", "--population", type=int, help="number of fragments generated to choose the best one")
+    parser.add_argument("-i", "--inverse", default=False, action=argparse.BooleanOptionalAction, help="building from the last atom")
     args = parser.parse_args()
+
+    file = args.file
+    start = args.start 
+    end = args.end
+    population = args.population

@@ -122,11 +122,3 @@ impl Histogram2D
         results
     }
 }
-
-#[pymodule]
-fn statistical(_: Python, m: &PyModule) -> PyResult<()>
-{
-    m.add_class::<Histogram1D>()?;
-    m.add_class::<Histogram2D>()?;
-    Ok(())
-}

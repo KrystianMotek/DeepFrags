@@ -94,8 +94,7 @@ impl Output
         let mut alpha: Vec<f64> = vec![];
         for i in start..end
         {
-            // because original data are normalized
-            alpha.push(self.vector[i] * 180.0); 
+            alpha.push(self.vector[i] * 180.0); // because original data are normalized
         }
         alpha
     }
@@ -338,23 +337,4 @@ pub fn build_fragment(c_1: Vec3, c_2: Vec3, c_3: Vec3, output: Output, bond_leng
         atoms.push(c_new);
     }
     atoms
-}
-
-#[pymodule]
-fn structural(_: Python, m: &PyModule) -> PyResult<()>
-{
-    m.add_class::<Vec3>()?;
-    m.add_class::<Output>()?;
-    m.add_function(wrap_pyfunction!(to_degrees, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(to_radians, m)?).unwrap();  
-    m.add_function(wrap_pyfunction!(dot_product, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(cross_product, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(two_atoms_vector, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(compute_planar, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(atan2, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(compute_dihedral, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(sin_cos_to_angle, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(angles_to_cartesian, m)?).unwrap();
-    m.add_function(wrap_pyfunction!(build_fragment, m)?).unwrap();
-    Ok(())
 }
