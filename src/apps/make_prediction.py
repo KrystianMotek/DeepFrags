@@ -4,7 +4,7 @@ import numpy as np
 from proteins import FileParser
 from model import DecoderLoader
 from features import LabelMLP
-from utils.structural import Output
+from structural import Output
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
