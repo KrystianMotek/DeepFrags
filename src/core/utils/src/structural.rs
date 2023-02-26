@@ -245,74 +245,30 @@ pub fn sin_cos_to_angle(sin: f64, cos: f64) -> f64
 }
 
 #[pyfunction]
-pub fn angles_to_cartesian(atom_1: &mut Vec3, atom_2: &mut Vec3, atom_3: &mut Vec3, bond_length: f64, alpha: f64, theta: f64) -> Vec3
+pub fn angles_to_cartesian(atom_1: &Vec3, atom_2: &Vec3, atom_3: &Vec3, bond_length: f64, alpha: f64, theta: f64) -> Vec3
 {
-    let sin_alpha: f64 = to_radians(180.0 - alpha).sin();
-    let cos_alpha: f64 = to_radians(180.0 - alpha).cos();
+    let sin_alpha: f64 = to_radians(alpha).sin();
+    let cos_alpha: f64 = to_radians(alpha).cos();
     let sin_theta: f64 = to_radians(theta).sin();
     let cos_theta: f64 = to_radians(theta).cos();
     
-    let mut new_x: f64 = bond_length * cos_alpha;
-    let mut new_y: f64 = bond_length * sin_alpha * cos_theta;
-    let mut new_z: f64 = bond_length * sin_alpha * sin_theta;
+    let x: f64 = bond_length * cos_alpha;
+    let y: f64 = bond_length * sin_alpha * cos_theta;
+    let z: f64 = bond_length * sin_alpha * sin_theta;
 
-    // transform to local coordinates
-    atom_1.subtract(atom_3);
-    atom_2.subtract(atom_3);
+    let v_12 = two_atoms_vector(&atom_1, &atom_2);
+    let mut v_23 = two_atoms_vector(&atom_2, &atom_3);
+    v_23.normalize();
 
-    let d_2_xz: f64 = (atom_2.x.powf(2.0) + atom_2.z.powf(2.0)).sqrt();
-    let d_2: f64 = atom_2.length();
-    
-    let (d_2_inverse, d_2_xz_inverse): (f64, f64);
-    let (xx_3, x_2_o, y_2_o, z_2_o, xz_2_o): (f64, f64, f64, f64, f64);
+    let mut k = cross_product(&v_12, &v_23);
+    k.normalize();
 
-    if d_2 < 0.001
-    {
-        d_2_inverse = 1.0 / 0.001;
-    }
-    else
-    {
-        d_2_inverse = 1.0 / d_2;
-    }
+    let l = cross_product(&k, &v_23);
 
-    if d_2_xz < 0.001
-    {
-        xx_3 = atom_1.x;
-        x_2_o = 1.0;
-        z_2_o = 0.0;
-    }
-    else
-    {
-        d_2_xz_inverse = 1.0 / d_2_xz;
-        x_2_o = atom_2.x * d_2_xz_inverse;
-        z_2_o = atom_2.z * d_2_xz_inverse;
-        xx_3 = atom_1.x * x_2_o + atom_1.z * z_2_o;
-        atom_1.z = atom_1.z * x_2_o - atom_1.x * z_2_o;
-    }
-
-    xz_2_o = d_2_xz * d_2_inverse;
-    y_2_o = atom_2.y * d_2_inverse;
-    atom_1.x = (-1.0) * (xx_3 * xz_2_o - atom_1.y * y_2_o);
-    atom_1.y = xx_3 * y_2_o - atom_1.y * xz_2_o;
-
-    let (d_1_yz, d_1_yz_inverse): (f64, f64);
-    let (y_3_o, z_3_o, yy_4, xx_4, zz_4): (f64, f64, f64, f64, f64);
-
-    d_1_yz = (atom_1.y.powf(2.0) + atom_1.z.powf(2.0)).sqrt();
-    d_1_yz_inverse = 1.0 / d_1_yz;
-    y_3_o = atom_1.y * d_1_yz_inverse;
-    z_3_o = atom_1.z * d_1_yz_inverse;
-    yy_4 = y_3_o * new_y - z_3_o * new_z;
-    zz_4 = y_3_o * new_z + z_3_o * new_y;
-    xx_4 = y_2_o * yy_4 - xz_2_o * new_x;
-
-    new_y = (-1.0) * (xz_2_o * yy_4 + y_2_o * new_x);
-    new_x = x_2_o * xx_4 - z_2_o * zz_4;
-    new_z = z_2_o * xx_4 + x_2_o * zz_4;
-
-    // displacement from the last atom
-    let new_atom = Vec3{x: new_x, y: new_y, z: new_z};
-    new_atom
+    let new_x: f64 = atom_3.x - v_23.x * x + l.x * y + k.x * z;
+    let new_y: f64 = atom_3.y - v_23.y * x + l.y * y + k.y * z;
+    let new_z: f64 = atom_3.z - v_23.z * x + l.z * y + k.z * z;
+    Vec3{x: new_x, y: new_y, z: new_z} // displacement from the last atom
 }
 
 #[pyfunction]
