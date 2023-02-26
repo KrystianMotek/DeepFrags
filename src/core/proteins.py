@@ -57,11 +57,17 @@ class Record:
 
 
 class Structure:
-    def __init__(self, atoms):
+    def __init__(self, atoms: List[CarbonAlpha]):
         self.atoms = atoms
     
     def to_pdb(self):
         return [atom.__str__() for atom in self.atoms]
+    
+    def sequence(self, i, j):
+        string = ""
+        for atom in self.atoms[i-1:j-1]:
+            string += atom.translate_three_letters()
+        return string
     
     def local_distance(self, i, j):
         coordinates_i = self.atoms[i-1].coordinates
