@@ -76,9 +76,9 @@ impl Vec3
 impl Output
 {
     #[new]
-    pub fn new(vector: Vec<f64>, bond_length: f64) -> Self
+    pub fn new(vector: Vec<f64>) -> Self
     {
-        Output{vector, bond_length}
+        Output{vector}
     }
 
     pub fn n(&self) -> usize

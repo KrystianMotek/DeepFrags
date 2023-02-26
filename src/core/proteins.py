@@ -1,7 +1,7 @@
 from typing import List
 from structural import Vec3, two_atoms_vector
 
-RESIDUES = {"A": "ALA", "R": "ARG", "N": "ASN", "D": "ASP", "C": "CYS", "Q": "GLN", "E": "GLU", "G": "GLY", "H": "HIS", "I": "ILE", "L": "LEU", "K": "LYS", "M": "MET", "F": "PHE", "P": "PRO", "S": "SER", "T": "THR", "W": "TRP", "Y": "TYR", "V": "VAL"}
+RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
 
 
 class CarbonAlpha:
@@ -17,7 +17,43 @@ class CarbonAlpha:
         self.z = self.coordinates.z
 
     def __str__(self):
-        pass
+        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8)
+    
+    def translate_three_letters(self):
+        return RESIDUES[self.residue]
+
+
+class Record:
+    def __init__(self, line: str):
+        self.line = line
+    
+    def read_id(self):
+        ORDINAL = 1
+        return self.line.split()[ORDINAL]
+    
+    def read_residue(self):
+        ORDINAL = 3
+        return self.line.split()[ORDINAL]
+    
+    def read_chain_name(self):
+        ORDINAL = 4
+        return self.line.split()[ORDINAL]
+    
+    def read_residue_id(self):
+        ORDINAL = 5
+        return self.line.split()[ORDINAL]
+    
+    def read_coordinates(self):
+        ORDINAL_X = 6
+        ORDINAL_Y = 7
+        ORDINAL_Z = 8
+        x = float(self.line.split()[ORDINAL_X])
+        y = float(self.line.split()[ORDINAL_Y])
+        z = float(self.line.split()[ORDINAL_Z])
+        return Vec3(x=x, y=y, z=z)
+    
+    def transform(self):
+        return CarbonAlpha(id=self.read_id(), residue=self.read_residue(), chain_name=self.read_chain_name(), residue_id=self.read_residue_id(), coordinates=self.read_coordinates())
 
 
 class Structure:
@@ -40,5 +76,13 @@ class FileParser:
         self.stream = open(self.file)
         self.lines = self.stream.readlines()
 
+    def select_lines(self) -> List[Record]:
+        records = []
+        for line in self.lines:
+            if len(line.strip()) != 0:
+                if line.split()[0] == "ATOM" and line.split()[2] == "CA":
+                    records.append(Record(line=line))
+        return records
+    
     def load_structure(self):
-        pass
+        return Structure(atoms=[record.transform() for record in self.select_lines()])
