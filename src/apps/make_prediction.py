@@ -1,9 +1,10 @@
 import argparse
 import logging
+import numpy as np
 from proteins import FileParser
 from model import DecoderLoader
 from features import LabelMLP
-from structural import Output
+from structural import Output, build_fragment
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
@@ -48,7 +49,28 @@ if __name__ == "__main__":
 
     span = structure.local_distance(start, end)
 
-    decoder = f"{model}/decoder.pb"
-    latent = f"{model}/latent.npy"
-
     label = LabelMLP(aa=aa, ss=ss, r1n=span)
+
+    decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
+
+    if args.inverse:
+        c_1 = structure[end+2]
+        c_2 = structure[end+1]
+        c_3 = structure[end]
+        c_last = structure[start-2]
+    else:
+        c_1 = structure[start-4]
+        c_2 = structure[start-3]
+        c_3 = structure[start-2]
+        c_last = structure[end]
+    
+    outputs = [Output(vector=decoder.predict(label.format())[0]) for _ in range(population)] # raw data
+
+    fragments = [build_fragment(c_1, c_2, c_3, output, 3.8) for output in outputs] 
+
+    # computed on the last atom
+    lengths = [np.linalg.norm(np.array(c_last.to_list()) - np.array(fragment[-1].to_list())) for fragment in fragments]
+
+    errors = [np.abs(3.8 - length) for length in lengths]
+
+    matching_fragment = fragments[errors.index(np.min(errors))] # fragment with the smallest error
