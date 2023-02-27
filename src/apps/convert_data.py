@@ -15,6 +15,6 @@ if __name__ == "__main__":
 
     work_directory = f"{os.path.dirname(args.file)}"
 
-    data = DataSetMLP(args.file)
+    data = DataSetMLP(file=args.file)
     data.save_inputs(f"{work_directory}/inputs.npy")
     data.save_labels(f"{work_directory}/labels.npy")
