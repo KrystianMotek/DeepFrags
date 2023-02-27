@@ -65,7 +65,7 @@ class Structure:
     
     def sequence(self, i, j):
         string = ""
-        for atom in self.atoms[i-1:j-1]:
+        for atom in self.atoms[i-1:j]:
             string += atom.translate_three_letters()
         return string
     
