@@ -12,7 +12,7 @@ import numpy as np
 
 
 def kl_loss(mean, log_variance):
-    return tf.reduce_mean(0.5 * (tf.square(mean) + tf.exp(log_variance) - log_variance - 1))
+    return 0.5 * tf.reduce_mean(tf.square(mean) + tf.exp(log_variance) - log_variance - 1)
 
 
 def reconstruction_loss(x, x_reconstructed):
@@ -34,7 +34,7 @@ class CVAE(tf.keras.Model):
 
         # expected data dimensions
         self.input_dim = 3 * self.n
-        self.label_dim = (20 + 3) * self.n + 1
+        self.label_dim = (20 + 3) * self.n + 3
 
         self.encoder = self.build_encoder()
         self.decoder = self.build_decoder()
