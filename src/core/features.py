@@ -42,10 +42,12 @@ class InputMLP(Input):
 
 
 class Label(ABC):
-    def __init__(self, aa, ss, r1n):
+    def __init__(self, aa, ss, dx, dy, dz):
         self.aa = aa
         self.ss = ss
-        self.r1n = r1n # distance between bound atoms
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
 
     @abstractmethod
     def format(self):
@@ -65,14 +67,17 @@ class Label(ABC):
     def encode_ss(self):
         string = self.ss
         return self.string_to_one_hot(string, codes="HEC")
-    
-    def reshape_r1n(self):
-        return tf.reshape(self.r1n, shape=(1, 1))
+
+    def displacement(self):
+        dx = self.dx
+        dy = self.dy
+        dz = self.dz
+        return tf.constant([[dx, dy, dz]])
     
 
 class LabelMLP(Label):
     def format(self):
-        return tf.concat([self.reshape_r1n(), self.encode_aa(), self.encode_ss()], axis=1)
+        return tf.concat([self.displacement(), self.encode_aa(), self.encode_ss()], axis=1)
 
 
 class Observation(ABC):
@@ -97,6 +102,18 @@ class Observation(ABC):
         length = len(self.line[ORDINAL])
         return "".join(self.line[ORDINAL][3:length-3])
 
+    def read_dx(self):
+        ORDINAL = 6
+        return float(self.line[ORDINAL])
+
+    def read_dy(self):
+        ORDINAL = 7
+        return float(self.line[ORDINAL])
+
+    def read_dz(self):
+        ORDINAL = 8
+        return float(self.line[ORDINAL])
+
     def read_alpha(self):
         ORDINAL = 9
         return tf.constant([[float(angle) for i, angle in enumerate(self.line[ORDINAL:]) if i % 2 == 0]])
@@ -105,22 +122,13 @@ class Observation(ABC):
         ORDINAL = 10
         return tf.constant([[float(angle) for i, angle in enumerate(self.line[ORDINAL:]) if i % 2 == 0]])
 
-    def compute_r1n(self):
-        ORDINAL_X = 6
-        ORDINAL_Y = 7
-        ORDINAL_Z = 8
-        dx = float(self.line[ORDINAL_X])
-        dy = float(self.line[ORDINAL_Y])
-        dz = float(self.line[ORDINAL_Z])
-        return tf.norm([dx, dy, dz])
-
 
 class ObservationMLP(Observation):
     def create_input(self):
         return InputMLP(alpha=self.read_alpha(), theta=self.read_theta())
 
     def create_label(self):
-        return LabelMLP(aa=self.read_aa(), ss=self.read_ss(), r1n=self.compute_r1n())
+        return LabelMLP(aa=self.read_aa(), ss=self.read_ss(), dx=self.read_dx(), dy=self.read_dy(), dz=self.read_dz())
 
 
 class DataSet(ABC):
