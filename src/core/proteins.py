@@ -1,6 +1,9 @@
 from typing import List
 from structural import Vec3, two_atoms_vector
 
+# tools for reading PDB files
+# functionalities are adjusted to parsing alpha carbons only 
+
 RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
 
 
@@ -17,7 +20,7 @@ class CarbonAlpha:
         self.z = self.coordinates.z
 
     def __str__(self):
-        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8)
+        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8) 
     
     def translate_three_letters(self):
         return RESIDUES[self.residue]
@@ -69,12 +72,11 @@ class Structure:
             string += atom.translate_three_letters()
         return string
     
-    def local_distance(self, i, j):
+    def displacement(self, i, j):
         coordinates_i = self.atoms[i-1].coordinates
         coordinates_j = self.atoms[j-1].coordinates
-        vector = two_atoms_vector(coordinates_i, coordinates_j)
-        return vector.length()
-
+        return two_atoms_vector(coordinates_i, coordinates_j)
+    
 
 class FileParser:
     def __init__(self, file):
