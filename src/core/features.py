@@ -59,6 +59,15 @@ class Label(ABC):
         numerical_values = [indices[value] for value in list(string)]
         depth = len(codes)
         return tf.reshape(tf.one_hot(numerical_values, depth=depth), shape=(1, depth * len(numerical_values)))
+    
+    @staticmethod
+    def one_hot_to_string(vector, codes):
+        string = ""
+        categories = len(codes)
+        for i in range(len(vector)):
+            index = list(vector[i:i+categories]).index(1.0)
+            string += codes[index]
+        return string
 
     def encode_aa(self):
         string = self.aa
@@ -74,10 +83,25 @@ class Label(ABC):
         dz = self.dz
         return tf.constant([[dx, dy, dz]])
     
+    def extract_ss(self):
+        pass
+    
 
 class LabelMLP(Label):
     def format(self):
         return tf.concat([self.displacement(), self.encode_aa(), self.encode_ss()], axis=1)
+    
+    @staticmethod
+    def extract_aa(vector):
+        n = (len(vector) - 3) / 23
+        ORDINAL = 20 * n + 3
+        return Label.one_hot_to_string(vector[3:ORDINAL], codes="ARNDCQEGHILKMFPSTWYV")
+    
+    @staticmethod
+    def extract_ss(vector):
+        n = (len(vector) - 3) / 23
+        ORDINAL = 20 * n + 3
+        return Label.one_hot_to_string(vector[ORDINAL:], codes="HEC")
 
 
 class Observation(ABC):
