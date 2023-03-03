@@ -90,18 +90,6 @@ class Label(ABC):
 class LabelMLP(Label):
     def format(self):
         return tf.concat([self.displacement(), self.encode_aa(), self.encode_ss()], axis=1)
-    
-    @staticmethod
-    def extract_aa(vector):
-        n = (len(vector) - 3) / 23
-        ORDINAL = 20 * n + 3
-        return Label.one_hot_to_string(vector[3:ORDINAL], codes="ARNDCQEGHILKMFPSTWYV")
-    
-    @staticmethod
-    def extract_ss(vector):
-        n = (len(vector) - 3) / 23
-        ORDINAL = 20 * n + 3
-        return Label.one_hot_to_string(vector[ORDINAL:], codes="HEC")
 
 
 class Observation(ABC):
