@@ -20,7 +20,7 @@ class CarbonAlpha:
         self.z = self.coordinates.z
 
     def __str__(self):
-        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8) 
+        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8) + "  " + "1.00  0.00" + "           " + "C"
     
     def translate_three_letters(self):
         return RESIDUES[self.residue]
