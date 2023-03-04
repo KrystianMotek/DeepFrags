@@ -1,7 +1,7 @@
 import os
 import argparse
 import logging
-from model import Trainer
+from core.model import Trainer
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True

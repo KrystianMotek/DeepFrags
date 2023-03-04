@@ -1,7 +1,7 @@
 import os
 import argparse
 import logging
-from features import DataSetMLP
+from core.features import DataSetMLP
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True

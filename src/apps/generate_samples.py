@@ -1,6 +1,6 @@
 import os
 import argparse
-from data import all_samples
+from utils.data import all_samples
 
 # get all observations from given directory
 

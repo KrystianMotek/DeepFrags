@@ -1,10 +1,10 @@
 import argparse
 import logging
 import numpy as np
-from proteins import CarbonAlpha, FileParser
-from model import DecoderLoader
-from features import LabelMLP
-from structural import Vec3, Output, build_fragment, two_atoms_vector
+from core.proteins import CarbonAlpha, FileParser
+from core.model import DecoderLoader
+from core.features import LabelMLP
+from utils.structural import Vec3, Output, build_fragment, two_atoms_vector
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True

@@ -1,8 +1,8 @@
 import os
 import argparse
 import numpy as np
-from features import LabelMLP
-from structural import Output
+from core.features import LabelMLP
+from utils.structural import Output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     inputs = np.load(args.inputs)
     labels = np.load(args.labels)
-    
+
     ss = [LabelMLP.extract_ss(vector) for vector in labels]
     alpha = [Output(vector=vector).alpha() for vector in inputs]
     theta = [Output(vector=vector).theta() for vector in inputs]

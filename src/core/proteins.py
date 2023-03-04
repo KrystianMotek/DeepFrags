@@ -1,96 +1,69 @@
 from typing import List
-from structural import Vec3, two_atoms_vector
+from utils.structural import Vec3, two_atoms_vector
 
 # tools for reading PDB files
-# functionalities are adjusted to parsing alpha carbons only 
 
 RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
 
 
-class CarbonAlpha:
-    def __init__(self, id, residue, chain_name, residue_id, coordinates):
-        self.id = id
-        self.residue = residue
-        self.chain_name = chain_name
-        self.residue_id = residue_id
+class Atom:
+    def __init__(self, id, name, coordinates: Vec3):
+        self.id = id 
+        self.name = name 
         self.coordinates = coordinates
 
         self.x = self.coordinates.x
         self.y = self.coordinates.y
         self.z = self.coordinates.z
 
-    def __str__(self):
-        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8) + "  " + "1.00  0.00" + "           " + "C"
-    
-    def translate_three_letters(self):
-        return RESIDUES[self.residue]
+    def is_carbon_alpha(self):
+        return self.name == "CA"
 
 
-class Record:
+class Residue:
+    def __init__(self, atoms: List[Atom]):
+        self.atoms = atoms
+
+
+class Chain:
+    def __init__(self, name, residues: List[Residue]):
+        self.name = name
+        self.residues = residues
+
+
+class Structure:
+    def __init__(self, chains: List[Chain]):
+        self.chain = chains
+
+
+class LineParser:
     def __init__(self, line: str):
         self.line = line
     
     def read_id(self):
-        ORDINAL = 1
-        return self.line.split()[ORDINAL]
-    
-    def read_residue(self):
-        ORDINAL = 3
-        return self.line.split()[ORDINAL]
-    
-    def read_chain_name(self):
-        ORDINAL = 4
-        return self.line.split()[ORDINAL]
-    
-    def read_residue_id(self):
-        ORDINAL = 5
-        return self.line.split()[ORDINAL]
-    
-    def read_coordinates(self):
-        ORDINAL_X = 6
-        ORDINAL_Y = 7
-        ORDINAL_Z = 8
-        x = float(self.line.split()[ORDINAL_X])
-        y = float(self.line.split()[ORDINAL_Y])
-        z = float(self.line.split()[ORDINAL_Z])
-        return Vec3(x=x, y=y, z=z)
-    
-    def transform(self):
-        return CarbonAlpha(id=self.read_id(), residue=self.read_residue(), chain_name=self.read_chain_name(), residue_id=self.read_residue_id(), coordinates=self.read_coordinates())
+        START = 6
+        END = 11
+        return int(self.line[START:END].strip())
 
-
-class Structure:
-    def __init__(self, atoms: List[CarbonAlpha]):
-        self.atoms = atoms
+    def read_name(self):
+        START = 12
+        END = 16
+        return self.line[START:END].strip()
     
-    def to_pdb(self):
-        return [atom.__str__() for atom in self.atoms]
+    def read_x(self):
+        START = 30
+        END = 38
+        return float(self.line[START:END].strip())
     
-    def sequence(self, i, j):
-        string = ""
-        for atom in self.atoms[i-1:j]:
-            string += atom.translate_three_letters()
-        return string
+    def read_y(self):
+        START = 38
+        END = 47
+        return float(self.line[START:END].strip())
     
-    def displacement(self, i, j):
-        coordinates_i = self.atoms[i-1].coordinates
-        coordinates_j = self.atoms[j-1].coordinates
-        return two_atoms_vector(coordinates_i, coordinates_j)
+    def read_z(self):
+        START = 47
+        END = 54
+        return float(self.line[START:END].strip())
     
-
-class FileParser:
-    def __init__(self, file):
-        self.file = file
-        self.stream = open(self.file)
-        self.lines = self.stream.readlines()
-
-    def select_lines(self) -> List[Record]:
-        records = []
-        for line in self.lines:
-            if len(line.strip()) != 0:
-                if line.split()[0] == "ATOM" and line.split()[2] == "CA":
-                    records.append(Record(line=line))
-        return records
-    
-    def load_structure(self):
-        return Structure(atoms=[record.transform() for record in self.select_lines()])
+    def load_atom(self):
+        return Atom(id=self.read_id(), name=self.read_name(), coordinates=Vec3(x=self.read_x(), y=self.read_y(), z=self.read_z()))
