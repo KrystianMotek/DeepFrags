@@ -4,8 +4,9 @@ from structural import Vec3, two_atoms_vector
 # tools for reading PDB files
 # functionalities are dedicated to parse alpha carbon trace including secondary structure
 
-RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
-
+RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
+            "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
+ 
 
 class CarbonAlpha:
     def __init__(self, ss, id, residue, residue_id, chain_name, coordinates: Vec3):
@@ -17,7 +18,8 @@ class CarbonAlpha:
         self._coordinates = coordinates
 
     def __str__(self):
-        return "%4s %6d %3s %4s %s %3d %11.3f %7.3f %7.3f %5.2f %5.2f %11s" % ("ATOM", self.id, "CA", self.residue, self.chain_name, self.residue_id, self.x, self.y, self.z, 1.00, 0.00, "C")
+        formatters = ("ATOM", self.id, "CA", self.residue, self.chain_name, self.residue_id, self.x, self.y, self.z, 1.00, 0.00, "C") 
+        return "%4s %6d %3s %4s %s %3d %11.3f %7.3f %7.3f %5.2f %5.2f %11s" % formatters
 
     @property
     def ss(self):
@@ -100,25 +102,38 @@ class LineParser:
         return self._line 
     
     def read_id(self):
-        return int(self.line[6:11].strip())
+        START = 6
+        END = 11
+        return int(self.line[START:END].strip())
     
     def read_residue(self):
-        return self.line[17:20]
+        START = 17
+        END = 20
+        return self.line[START:END]
     
     def read_residue_id(self):
-        return int(self.line[22:26].strip())
+        START = 22
+        END = 26
+        return int(self.line[START:END].strip())
     
     def read_chain_name(self):
-        return self.line[21]
+        ORDINAL = 21
+        return self.line[ORDINAL]
     
     def read_x(self):
-        return float(self.line[30:38].strip())
+        START = 30
+        END = 38
+        return float(self.line[START:END].strip())
     
     def read_y(self):
-        return float(self.line[38:47].strip())
+        START = 38
+        END = 47
+        return float(self.line[START:END].strip())
     
     def read_z(self):
-        return float(self.line[47:54].strip())
+        START = 47
+        END = 54
+        return float(self.line[START:END].strip())
     
 
 class FileParser:
@@ -135,17 +150,27 @@ class FileParser:
     def parse_ca(self):
         records = []
         for line in self.lines:
-            if line[0:4] == "ATOM":
-                if line[12:16].strip() == "CA":
+            START_ATOM = 0
+            END_ATOM = 4
+            if line[START_ATOM:END_ATOM] == "ATOM":
+                START_CA = 12
+                END_CA = 16
+                if line[START_CA:END_CA].strip() == "CA":
                     records.append(line)
         return records
     
     def parse_helix(self):
         numbers = []
         for line in self.lines:
-            if line[0:5] == "HELIX":
-                initial = int(line[21:25].strip())
-                terminal = int(line[33:37].strip())
+            START_HELIX = 0
+            END_HELIX = 5
+            if line[START_HELIX:END_HELIX] == "HELIX":
+                START_INITIAL = 21
+                END_INITIAL = 25
+                initial = int(line[START_INITIAL:END_INITIAL].strip())
+                START_TERMINAL = 33
+                END_TERMINAL = 37
+                terminal = int(line[START_TERMINAL:END_TERMINAL].strip())
                 for i in range(initial, terminal+1):
                     numbers.append(i)
         return numbers
@@ -153,9 +178,15 @@ class FileParser:
     def parse_sheet(self):
         numbers = []
         for line in self.lines:
-            if line[0:5] == "SHEET":
-                initial = int(line[22:26].strip())
-                terminal = int(line[33:37].strip())
+            START_SHEET = 0
+            END_SHEET = 5
+            if line[START_SHEET:END_SHEET] == "SHEET":
+                START_INITIAL = 22
+                END_INITIAL = 26
+                initial = int(line[START_INITIAL:END_INITIAL].strip())
+                START_TERMINAL = 33
+                END_TERMINAL = 37
+                terminal = int(line[START_TERMINAL:END_TERMINAL].strip())
                 for i in range(initial, terminal+1):
                     numbers.append(i)
         return numbers
@@ -173,15 +204,12 @@ class FileParser:
             y = parser.read_y()
             z = parser.read_z()
             coordinates = Vec3(x=x, y=y, z=z)
-
-            # search secondary structure for each alpha carbon
             if id in self.parse_helix():
                 atoms.append(CarbonAlpha(ss="H", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
             if id in self.parse_sheet():
                 atoms.append(CarbonAlpha(ss="E", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
             else:
                 atoms.append(CarbonAlpha(ss="C", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
-
         return atoms
 
     def load_structure(self):
