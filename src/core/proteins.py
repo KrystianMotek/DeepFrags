@@ -60,7 +60,7 @@ class CarbonAlpha:
         self._coordinates = vector
 
 
-class Chain:
+class Structure:
     def __init__(self, atoms: List[CarbonAlpha]):
         self._atoms = atoms 
     
@@ -87,22 +87,9 @@ class Chain:
         coordinates_j = self.atoms[j-1].coordinates()
         vector = two_atoms_vector(coordinates_i, coordinates_j)
         return vector.length()
-
-
-class Structure:
-    def __init__(self, chains: List[Chain]):
-        self._chains = chains
-
-    @property
-    def chains(self):
-        return self._chains
     
     def to_pdb(self):
-        lines = []
-        for chain in self.chains():
-            for atom in chain.atoms():
-                lines.append(atom.__str__())
-        return lines
+        return [atom.__str__() for atom in self.atoms()]
     
 
 class LineParser:
@@ -194,3 +181,6 @@ class FileParser:
             else:
                 atoms.append(CarbonAlpha(ss="C", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
         return atoms
+
+    def load_structure(self):
+        return Structure(atoms=self.load_atoms())
