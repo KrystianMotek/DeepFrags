@@ -2,7 +2,7 @@ import os
 import argparse
 import numpy as np
 from core.features import LabelMLP
-from utils.structural import Output
+from structural import Output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
