@@ -2,21 +2,22 @@ from typing import List
 from utils.structural import Vec3, two_atoms_vector
 
 # tools for reading PDB files
+# functionalities are dedicated to parse alpha carbon trace including secondary structure
 
-RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
-            "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
+RESIDUES = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
 
 
 class CarbonAlpha:
-    def __init__(self, ss, id, residue, chain_name, coordinates: Vec3):
+    def __init__(self, ss, id, residue, residue_id, chain_name, coordinates: Vec3):
         self._ss = ss 
         self._id = id 
         self._residue = residue
+        self._residue_id = residue_id
         self._chain_name = chain_name
         self._coordinates = coordinates
 
     def __str__(self):
-        pass
+        return "ATOM" + f"{self.id}".rjust(7) + "  " + f"CA  {self.residue} {self.chain_name}" + f"{self.residue_id}".rjust(4) + f"{self.x:.3f}".rjust(12) + f"{self.y:.3f}".rjust(8) + f"{self.z:.3f}".rjust(8) + "  " + "1.00  0.00" + "           " + "C"
 
     @property
     def ss(self):
@@ -31,12 +32,28 @@ class CarbonAlpha:
         return self._residue
     
     @property
+    def residue_id(self):
+        return self._residue_id
+    
+    @property
     def chain_name(self):
         return self._chain_name
     
     @property
     def coordinates(self):
         return self._coordinates
+    
+    @property
+    def x(self):
+        return self.coordinates().x 
+
+    @property
+    def y(self):
+        return self.coordinates().y
+    
+    @property
+    def z(self):
+        return self.coordinates().z
     
     @coordinates.setter
     def coordinates(self, vector: Vec3):
@@ -86,3 +103,78 @@ class Structure:
             for atom in chain.atoms():
                 lines.append(atom.__str__())
         return lines
+    
+
+class LineParser:
+    def __init__(self, line):
+        self._line = line 
+
+    @property
+    def line(self):
+        return self._line 
+    
+    def read_id(self):
+        return int(self.line()[6:11].strip())
+    
+    def read_residue(self):
+        return self.line()[17:20]
+    
+    def residue_id(self):
+        return int(self.line()[22:26].strip())
+    
+    def read_chain_name(self):
+        return self.line()[21]
+    
+    def read_x(self):
+        return float(self.line()[30:38].strip())
+    
+    def read_y(self):
+        return float(self.line()[38:47].strip())
+    
+    def read_z(self):
+        return float(self.line()[47:54].strip())
+    
+
+class FileParser:
+    def __init__(self, file):
+        self.file = file 
+        stream = open(file)
+        self._lines = stream.readlines()
+        stream.close()
+
+    @property
+    def lines(self):
+        return [line for line in self._lines if len(line) >= 4]
+    
+    def parse_ca(self):
+        records = []
+        for line in self.lines():
+            if line[0:4] == "ATOM":
+                if line[12:16].strip() == "CA":
+                    records.append(line)
+        return records
+    
+    def parse_helix(self):
+        ranges = []
+        for line in self.lines():
+            if line[0:5] == "HELIX":
+                initial = int(line[21:25].strip())
+                terminal = int(line[33:37].strip())
+                ranges.append([initial, terminal])
+        return ranges
+
+    def parse_sheet(self):
+        ranges = []
+        for line in self.lines():
+            if line[0:5] == "SHEET":
+                initial = int(line[22:26].strip())
+                terminal = int(line[33:37].strip())
+                ranges.append([initial, terminal])
+        return ranges
+    
+    def load_atoms(self):
+        records = self.parse_ca()
+        helix_ranges = self.parse_helix()
+        sheet_ranges = self.parse_sheet()
+        for record in records:
+            pass
