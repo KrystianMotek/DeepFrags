@@ -70,23 +70,30 @@ class Structure:
     def atoms(self):
         return self._atoms
 
+    def find_atom(self, id):
+        for atom in self.atoms:
+            if atom.residue_id == id:
+                return self.atoms.index(atom)
+            else:
+                continue
+
     def sequence(self, i, j):
         string = ""
-        atoms = self.atoms[i-1:j]
+        atoms = self.atoms[self.find_atom(i):self.find_atom(j)+1]
         for atom in atoms:
             string += RESIDUES[atom.residue]
         return string 
     
     def secondary_structure(self, i, j):
         string = ""
-        atoms = self.atoms[i-1:j]
+        atoms = self.atoms[self.find_atom(i):self.find_atom(j)+1]
         for atom in atoms:
             string += atom.ss
         return string
     
     def displacement(self, i, j):
-        coordinates_i = self.atoms[i-1].coordinates
-        coordinates_j = self.atoms[j-1].coordinates
+        coordinates_i = self.atoms[self.find_atom(i)].coordinates
+        coordinates_j = self.atoms[self.find_atom(j)].coordinates
         return two_atoms_vector(coordinates_i, coordinates_j)
     
     def to_pdb(self):
@@ -204,12 +211,13 @@ class FileParser:
             y = parser.read_y()
             z = parser.read_z()
             coordinates = Vec3(x=x, y=y, z=z)
-            if id in self.parse_helix():
-                atoms.append(CarbonAlpha(ss="H", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
-            if id in self.parse_sheet():
-                atoms.append(CarbonAlpha(ss="E", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
-            else:
+            if id not in self.parse_helix() and id not in self.parse_sheet():
                 atoms.append(CarbonAlpha(ss="C", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
+            else:
+                if id in self.parse_helix():
+                    atoms.append(CarbonAlpha(ss="H", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
+                if id in self.parse_sheet():
+                    atoms.append(CarbonAlpha(ss="E", id=id, residue=residue, residue_id=residue_id, chain_name=chain_name, coordinates=coordinates))
         return atoms
 
     def load_structure(self):
