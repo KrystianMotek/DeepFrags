@@ -1,7 +1,7 @@
 import argparse
 import logging
 import numpy as np
-from core.proteins import CarbonAlpha, FileParser
+from core.proteins import CarbonAlpha, Structure, FileParser
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from structural import Vec3, Output, build_fragment, two_atoms_vector
@@ -56,6 +56,7 @@ if __name__ == "__main__":
 
     matching_fragment = fragments[errors.index(np.min(errors))] # fragment with the smallest error of bond length at last position
 
+    new_atoms = []
     for i, atom in enumerate(structure.atoms):
         if i >= start and i <= end:
             ss = atom.ss
@@ -67,6 +68,13 @@ if __name__ == "__main__":
             y = matching_fragment[i-start+3].y
             z = matching_fragment[i-start+3].z
             coordinates = Vec3(x=x, y=y, z=z)
-            print(CarbonAlpha(ss, id=id, residue=residue, chain_name=chain_name, residue_id=residue_id, coordinates=coordinates)) # show atom as PDB record
+            new_atoms.append(CarbonAlpha(ss, id=id, residue=residue, chain_name=chain_name, residue_id=residue_id, coordinates=coordinates))
         else:
-            print(atom)
+            new_atoms.append(atom)
+
+    # protein with inserted fragment
+    new_structure = Structure(atoms=new_atoms)
+
+    lines = new_structure.to_pdb()
+    for line in lines:
+        print(line)
