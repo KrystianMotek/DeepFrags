@@ -26,8 +26,7 @@ class Input(ABC):
         pass
     
     def normaliza_alpha(self):
-        # to avoid exploding gradients
-        return self.alpha / 180 
+        return self.alpha / 180 # to avoid exploding gradients
 
     def sin_theta(self):
         return tf.sin(self.theta * np.pi / 180)
@@ -82,6 +81,9 @@ class Label(ABC):
         dy = self.dy
         dz = self.dz
         return tf.constant([[dx, dy, dz]])
+    
+    def extract_aa(self):
+        pass
     
     def extract_ss(self):
         pass
