@@ -1,3 +1,4 @@
+import time
 import argparse
 import logging
 import numpy as np
@@ -39,8 +40,12 @@ if __name__ == "__main__":
 
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
 
+    start_time = time.time()
+
     # raw data from decoder 
     outputs = [Output(vector=decoder.predict(label.format())[0]) for _ in range(population)]
+
+    end_time = time.time()
 
     # boundary atoms not included in rebuilt fragment
     c_1 = structure.atoms[start-4].coordinates
@@ -78,3 +83,6 @@ if __name__ == "__main__":
     lines = new_structure.to_pdb()
     for line in lines:
         print(line)
+    
+    total_time = end_time - start_time
+    print(f"{population} outputs generated in {total_time:.3f} seconds")
