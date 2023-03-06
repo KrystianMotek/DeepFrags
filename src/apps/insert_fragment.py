@@ -90,9 +90,9 @@ if __name__ == "__main__":
 
     print(f"Amino acids sequence {aa}")
     print(f"Secondary structure {ss}")
-        
-    total_time = end_time - start_time
-    print(f"{population} outputs generated in {total_time:.3f} seconds")
 
     length = lengths[fragments.index(matching_fragment)]
     print(f"Last bond length {length:.3f}")
+
+    total_time = end_time - start_time
+    print(f"{population} outputs generated in {total_time:.3f} seconds")
