@@ -2,6 +2,7 @@ import time
 import argparse
 import logging
 import numpy as np
+from tabulate import tabulate
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from core.parser import FileParser, Structure, CarbonAlpha
@@ -61,9 +62,9 @@ if __name__ == "__main__":
         last_bond_vector = two_atoms_vector(fragment[-1], input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
         lengths.append(last_bond_vector.length())
 
-    errors = [np.abs(BOND_LENGTH - length) for length in lengths]
+    last_bond_errors = [np.abs(BOND_LENGTH - length) for length in lengths]
 
-    matching_fragment = fragments[errors.index(np.min(errors))] # fragment with the smallest error of bond length at last position
+    matching_fragment = fragments[last_bond_errors.index(np.min(last_bond_errors))] # fragment with the smallest error of bond length at last position
 
     new_atoms = []
     for atom in input_structure.atoms:
@@ -88,11 +89,18 @@ if __name__ == "__main__":
     for line in lines:
         print(line)
 
-    print(f"Amino acids sequence {aa}")
-    print(f"Secondary structure {ss}")
+    r1n_values = []
+    for fragment in fragments:
+        displacement_vector = two_atoms_vector(fragment[-1], fragment[3])
+        r1n_values.append(displacement_vector.length())
 
-    length = lengths[fragments.index(matching_fragment)]
-    print(f"Last bond length {length:.3f}")
+    label_r1n = displacement.length()
+    r1n_errors = [np.abs(r1n - label_r1n) for r1n in r1n_values]
+    matching_length = lengths[fragments.index(matching_fragment)]
+    r1n_mean_error = np.mean(r1n_errors)
 
+    table = [["Amino acids sequence", aa], ["Secondary structure", ss], ["Last bond length", f"{matching_length:.3f}"], ["Label displacement norm", f"{label_r1n:.3f}"], ["Mean displacement error", f"{r1n_mean_error:.3f}"]]
+    print(tabulate(table))
+    
     total_time = end_time - start_time
     print(f"{population} outputs generated in {total_time:.3f} seconds")
