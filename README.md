@@ -1,3 +1,3 @@
 Conditional VAE to protein fragments generating in coarse-grained model
-<br/>
+&nbsp;
 ![Diagram](diagram.png)
