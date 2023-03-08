@@ -14,6 +14,10 @@ if __name__ == "__main__":
     
     labels = np.load(args.labels)
 
+    ss = []
+    for label in labels:
+        ss.append(LabelMLP.extract_ss(label))
+
     model = args.model 
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
 

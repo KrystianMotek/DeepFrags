@@ -2,7 +2,6 @@ import time
 import argparse
 import logging
 import numpy as np
-from tabulate import tabulate
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from core.parser import FileParser, Structure, CarbonAlpha
@@ -19,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--start", type=int, help="initial residue")
     parser.add_argument("-e", "--end", type=int, help="terminal residue")
     parser.add_argument("-m", "--model", type=str, help="model to be used")
+    parser.add_argument("-r", "--repeats", type=int, help="number of returned fragments")
     parser.add_argument("-p", "--population", type=int, help="number of fragments generated to choose the best one")
     args = parser.parse_args()
 
@@ -26,6 +26,7 @@ if __name__ == "__main__":
     start = args.start 
     end = args.end 
     model = args.model 
+    repeats = args.repeats
     population = args.population
 
     input_structure = FileParser(file=file).load_structure() 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # raw data from decoder 
-    outputs = [Output(vector=decoder.predict(label.format())[0]) for _ in range(population)]
+    outputs = [Output(vector=decoder.predict(label.format())[0]) for _ in range(population)] 
 
     end_time = time.time()
 
@@ -57,50 +58,49 @@ if __name__ == "__main__":
     # convert generated angles to cartesian
     fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] 
 
-    lengths = []
+    last_bond_lengths = []
     for fragment in fragments:
         last_bond_vector = two_atoms_vector(fragment[-1], input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
-        lengths.append(last_bond_vector.length())
+        last_bond_lengths.append(last_bond_vector.length())
 
-    last_bond_errors = [np.abs(BOND_LENGTH - length) for length in lengths]
+    last_bond_errors = [np.abs(BOND_LENGTH - length) for length in last_bond_lengths]
+    sorted_last_bond_errors = np.sort(last_bond_errors)
 
-    matching_fragment = fragments[last_bond_errors.index(np.min(last_bond_errors))] # fragment with the smallest error of bond length at last position
+    matching_fragments = []
+    for error in sorted_last_bond_errors[0:repeats]:
+        fragment = fragments[last_bond_errors.index(error)]
+        matching_fragments.append(fragment)
 
-    new_atoms = []
-    for atom in input_structure.atoms:
-        atom_ss = atom.ss
-        atom_id = atom.id
-        atom_residue = atom.residue
-        atom_chain_name = atom.chain_name
-        atom_residue_id = atom.residue_id
-        if atom_residue_id >= start and atom_residue_id <= end:
-            vector_index = atom_residue_id - start + 3
-            atom_x = matching_fragment[vector_index].x
-            atom_y = matching_fragment[vector_index].y
-            atom_z = matching_fragment[vector_index].z
-            atom_coordinates = Vec3(x=atom_x, y=atom_y, z=atom_z)
-            new_atoms.append(CarbonAlpha(ss=atom_ss, id=atom_id, residue=atom_residue, chain_name=atom_chain_name, residue_id=atom_residue_id, coordinates=atom_coordinates))
-        else:
-            new_atoms.append(atom)
+    new_structures = []
+    for fragment in matching_fragments:
+        new_atoms = []
+        for atom in input_structure.atoms:
+            atom_ss = atom.ss
+            atom_id = atom.id
+            atom_residue = atom.residue
+            atom_chain_name = atom.chain_name
+            atom_residue_id = atom.residue_id
+            if atom_residue_id >= start and atom_residue_id <= end:
+                vector_index = atom_residue_id - start + 3
+                atom_x = fragment[vector_index].x
+                atom_y = fragment[vector_index].y
+                atom_z = fragment[vector_index].z
+                atom_coordinates = Vec3(x=atom_x, y=atom_y, z=atom_z)
+                new_atoms.append(CarbonAlpha(ss=atom_ss, id=atom_id, residue=atom_residue, chain_name=atom_chain_name, residue_id=atom_residue_id, coordinates=atom_coordinates))
+            else:
+                new_atoms.append(atom)
+
+        structure = Structure(atoms=new_atoms) # protein with inserted fragment
+        new_structures.append(structure)
     
-    new_structure = Structure(atoms=new_atoms) # protein with inserted fragment
+    for i, structure in enumerate(new_structures):
+        print(f"MODEL {i+1}")
+        last_bond_vector = two_atoms_vector(structure.atoms[structure.find_residue(end)].coordinates, input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
+        print(f"Last bond length {last_bond_vector.length():.3f}")
 
-    lines = new_structure.to_pdb()
-    for line in lines:
-        print(line)
+        lines = structure.to_pdb()
+        for line in lines:
+            print(line)
 
-    r1n_values = []
-    for fragment in fragments:
-        displacement_vector = two_atoms_vector(fragment[-1], fragment[3])
-        r1n_values.append(displacement_vector.length())
-
-    label_r1n = displacement.length()
-    r1n_errors = [np.abs(r1n - label_r1n) for r1n in r1n_values]
-    matching_length = lengths[fragments.index(matching_fragment)]
-    r1n_mean_error = np.mean(r1n_errors)
-
-    table = [["Amino acids sequence", aa], ["Secondary structure", ss], ["Last bond length", f"{matching_length:.3f}"], ["Label displacement norm", f"{label_r1n:.3f}"], ["Mean displacement error", f"{r1n_mean_error:.3f}"]]
-    print(tabulate(table))
-    
     total_time = end_time - start_time
     print(f"{population} outputs generated in {total_time:.3f} seconds")

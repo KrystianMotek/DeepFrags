@@ -82,17 +82,8 @@ class Label(ABC):
         dz = self.dz
         return tf.constant([[dx, dy, dz]])
     
-    def extract_aa(self):
-        pass
-    
-    def extract_ss(self):
-        pass
-    
 
 class LabelMLP(Label):
-    def format(self):
-        return tf.concat([self.displacement(), self.encode_aa(), self.encode_ss()], axis=1)
-    
     @staticmethod
     def extract_aa(vector):
         n = (len(vector) - 3) / 23
@@ -104,6 +95,9 @@ class LabelMLP(Label):
         n = (len(vector) - 3) / 23
         ORDINAL = 20 * n + 3
         return Label.one_hot_to_string(vector[ORDINAL:], codes="HEC")
+    
+    def format(self):
+        return tf.concat([self.displacement(), self.encode_aa(), self.encode_ss()], axis=1)
 
 
 class Observation(ABC):
