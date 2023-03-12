@@ -63,9 +63,11 @@ class Label(ABC):
     def one_hot_to_string(vector, codes):
         string = ""
         categories = len(codes)
-        for i in range(len(vector)):
+        i = 0
+        while i < len(vector):
             index = list(vector[i:i+categories]).index(1.0)
             string += codes[index]
+            i += categories
         return string
 
     def encode_aa(self):
@@ -86,13 +88,13 @@ class Label(ABC):
 class LabelMLP(Label):
     @staticmethod
     def extract_aa(vector):
-        n = (len(vector) - 3) / 23
+        n = int((len(vector) - 3) / 23)
         ORDINAL = 20 * n + 3
         return Label.one_hot_to_string(vector[3:ORDINAL], codes="ARNDCQEGHILKMFPSTWYV")
     
     @staticmethod
     def extract_ss(vector):
-        n = (len(vector) - 3) / 23
+        n = int((len(vector) - 3) / 23)
         ORDINAL = 20 * n + 3
         return Label.one_hot_to_string(vector[ORDINAL:], codes="HEC")
     
