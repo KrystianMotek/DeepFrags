@@ -1,24 +1,29 @@
+import os
 import argparse
+import logging
 import numpy as np
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from structural import Output
 
-BOND_LENGTH = 3.8
+logging.getLogger("tensorflow").disabled=True
+logging.getLogger("h5py._conv").disabled=True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--labels", type=str)
     parser.add_argument("-m", "--model", type=str)
     args = parser.parse_args()
+
+    work_directory = os.path.dirname(os.path.abspath(__file__))
     
     labels = np.load(args.labels)
-
+    
+    # number of rebuilt residues
     n = (np.shape(labels) - 3) / 23 
 
     model = args.model 
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
-
     reconstructed_data = decoder.predict(labels)
 
     ss = []
@@ -44,5 +49,6 @@ if __name__ == "__main__":
             if ss[i] == "C":
                 c_angles.append([alpha[i], theta[i]])
 
-    # planar and dihedral angles correlation
-    # histograms for each secondary structure
+    np.save(f"{work_directory}/h_reconstructed.npy", h_angles)
+    np.save(f"{work_directory}/e_reconstructed.npy", e_angles)
+    np.save(f"{work_directory}/c_reconstructed.npy", c_angles)
