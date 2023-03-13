@@ -2,6 +2,7 @@ import os
 import argparse
 import logging
 import numpy as np
+import tensorflow as tf
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from structural import Output
@@ -9,26 +10,31 @@ from structural import Output
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
 
+# correlation plot
+# planar and dihedral angles histograms
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--labels", type=str)
     parser.add_argument("-m", "--model", type=str)
+    parser.add_argument("-l", "--labels", type=str)
     args = parser.parse_args()
+    
+    model = args.model 
+    labels = np.load(args.labels)
 
     work_directory = os.path.dirname(os.path.abspath(__file__))
     
-    labels = np.load(args.labels)
-    
     # number of rebuilt residues
-    n = (np.shape(labels) - 3) / 23 
+    n = int((np.shape(labels)[1] - 3) / 23)
 
-    model = args.model 
+    # part of model which is actually used
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
-    reconstructed_data = decoder.predict(labels)
 
     ss = []
+    reconstructed_data = []
     for label in labels:
         ss.append(LabelMLP.extract_ss(label))
+        reconstructed_data.append(decoder.predict(tf.reshape(label, shape=(1, len(label)))))
 
     alpha = []
     theta = []
