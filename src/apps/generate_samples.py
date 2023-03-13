@@ -14,3 +14,5 @@ if __name__ == "__main__":
     lines = all_samples(args.path)
     for line in lines:
         print(line, file=file) 
+
+    file.close()
