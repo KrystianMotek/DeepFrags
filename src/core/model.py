@@ -166,5 +166,5 @@ class DecoderLoader:
         self.latent = np.load(self.latent)[0] # load samples from the latent space
 
     def predict(self, labels):
-        z = np.array(random.sample(list(self.latent), len(labels)))
+        z = np.array(random.choices(list(self.latent), k=len(labels)))
         return self.decoder.predict(tf.keras.layers.concatenate([z, labels]))

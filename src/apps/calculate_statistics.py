@@ -27,14 +27,12 @@ if __name__ == "__main__":
     # number of rebuilt residues
     n = int((np.shape(labels)[1] - 3) / 23)
 
-    # part of model which is actually used
-    decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
+    decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy") # part of model which is actually used
+    reconstructed_data = decoder.predict(labels)
 
     ss = []
-    reconstructed_data = []
     for label in labels:
         ss.append(LabelMLP.extract_ss(label))
-        reconstructed_data.append(decoder.predict(tf.reshape(label, shape=(1, len(label)))))
 
     alpha = []
     theta = []
