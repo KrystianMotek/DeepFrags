@@ -2,16 +2,12 @@ import os
 import argparse
 import logging
 import numpy as np
-import tensorflow as tf
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from structural import Output
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
-
-# correlation plot
-# planar and dihedral angles histograms
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
