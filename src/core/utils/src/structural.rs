@@ -294,3 +294,19 @@ pub fn build_fragment(c_1: Vec3, c_2: Vec3, c_3: Vec3, output: Output, bond_leng
     }
     atoms
 }
+
+#[pyfunction]
+pub fn compute_rmsd(a: Vec<Vec3>, b: Vec<Vec3>) -> f64
+{
+    let mut square_displacements: Vec<f64> = vec![];
+    for iterator in a.iter().zip(b.iter())
+    {
+        let (vector_a, vector_b) = iterator;
+        let displacement: f64 = two_atoms_vector(vector_a, vector_b).length();
+        square_displacements.push(displacement.powf(2.0));
+    }
+    
+    let mut rmsd: f64 = square_displacements.iter().sum();
+    rmsd = (rmsd / square_displacements.len() as f64).sqrt();
+    rmsd
+}
