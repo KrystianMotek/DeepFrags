@@ -3,6 +3,7 @@ import argparse
 import logging
 import numpy as np
 import tensorflow as tf
+from tabulate import tabulate
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from core.parser import FileParser, Structure, CarbonAlpha
@@ -103,6 +104,9 @@ if __name__ == "__main__":
         lines = structure.to_pdb()
         for line in lines:
             print(line)
+
+    table = [["Amino acids sequence", f"{aa}"], ["Secondary structure", f"{ss}"]]
+    print(tabulate(table))
 
     total_time = end_time - start_time
     print(f"{population} outputs generated in {total_time:.3f} seconds")
