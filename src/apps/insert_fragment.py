@@ -2,6 +2,7 @@ import time
 import argparse
 import logging
 import numpy as np
+import tensorflow as tf
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from core.parser import FileParser, Structure, CarbonAlpha
@@ -39,14 +40,15 @@ if __name__ == "__main__":
     dy = displacement.y
     dz = displacement.z
 
-    label = LabelMLP(aa=aa, ss=ss, dx=dx, dy=dy, dz=dz)
-
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
 
-    start_time = time.time()
+    labels = [LabelMLP(aa=aa, ss=ss, dx=dx, dy=dy, dz=dz).format() for _ in range(population)]
+    labels = tf.reshape(labels, shape=(population, tf.shape(labels)[2]))
 
-    # raw data from decoder 
-    outputs = [Output(vector=decoder.predict(label.format())[0]) for _ in range(population)] 
+    start_time = time.time()
+    
+    vectors = decoder.predict(labels) # raw data from decoder
+    outputs = [Output(vector) for vector in vectors]
 
     end_time = time.time()
 
