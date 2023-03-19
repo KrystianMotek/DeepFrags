@@ -16,6 +16,8 @@ BOND_LENGTH = 3.8
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-aa", type=str, help="amino acids sequence")
+    parser.add_argument("-ss", type=str, help="secondary structure")
     parser.add_argument("-f", "--file", type=str, help="PDB file")
     parser.add_argument("-s", "--start", type=int, help="initial residue")
     parser.add_argument("-e", "--end", type=int, help="terminal residue")
@@ -33,8 +35,16 @@ if __name__ == "__main__":
 
     input_structure = FileParser(file=file).load_structure() 
 
-    aa = input_structure.read_sequence(start, end)
-    ss = input_structure.read_secondary_structure(start, end)
+    if args.aa == None:
+        aa = input_structure.read_sequence(start, end)
+    else:
+        aa = args.aa
+
+    if args.ss == None:
+        ss = input_structure.read_secondary_structure(start, end)
+    else:
+        ss = args.ss
+
     displacement = input_structure.local_displacement(start, end)
 
     dx = displacement.x
