@@ -2,6 +2,39 @@ import math
 import tensorflow as tf 
 
 
+class Output:
+    def __init__(self, vector):
+        self._vector = vector 
+
+    @property
+    def vector(self):
+        return self._vector
+    
+    def n(self):
+        # number of amino acids
+        return len(self.vector) / 3
+
+    def alpha(self):
+        start = 0
+        end = self.n()
+        return [self.vector[i] * 180.0 for i in range(start, end)]
+
+    def sin_theta(self):
+        start = self.n()
+        end = 2 * self.n()
+        return [self.vector[i] for i in range(start, end)]
+
+    def cos_theta(self):
+        start = self.n()
+        end = 3 * self.n()
+        return [self.vector[i] for i in range(start, end)]
+
+    def theta(self):
+        sin_theta = self.sin_theta()
+        cos_theta = self.cos_theta()
+        return [sin_cos_to_angle(sin, cos) for sin, cos in zip(sin_theta, cos_theta)]
+    
+
 def to_degrees(radians):
     return radians * 180.0 / math.pi 
 
@@ -39,34 +72,21 @@ def angles_to_cartesian(atom_1, atom_2, atom_3, bond_length, alpha, theta):
     return tf.constant([new_x.numpy(), new_y.numpy(), new_z.numpy()])
 
 
-class Output:
-    def __init__(self, vector):
-        self._vector = vector 
+def build_fragment(c_1, c_2, c_3, output: Output, bond_length):
+    n = output.n()
+    alpha = output.alpha()
+    theta = output.theta()
 
-    @property
-    def vector(self):
-        return self._vector
-    
-    def n(self):
-        # number of amino acids
-        return len(self.vector) / 3
+    start = 3
+    end = n + 3
+    atoms = [c_1, c_2, c_3]
+    for i in range(start, end):
+        c_i = atoms[i-3]
+        c_j = atoms[i-2]
+        c_k = atoms[i-1]
 
-    def alpha(self):
-        start = 0
-        end = self.n()
-        return [self.vector[i] * 180.0 for i in range(start, end)]
+        c_new = angles_to_cartesian(c_i, c_j, c_k, bond_length, alpha[i-3], theta[i-3])
+        c_new = tf.add(c_k, c_new)
+        atoms.append(c_new)
 
-    def sin_theta(self):
-        start = self.n()
-        end = 2 * self.n()
-        return [self.vector[i] for i in range(start, end)]
-
-    def cos_theta(self):
-        start = self.n()
-        end = 3 * self.n()
-        return [self.vector[i] for i in range(start, end)]
-
-    def theta(self):
-        sin_theta = self.sin_theta()
-        cos_theta = self.cos_theta()
-        return [sin_cos_to_angle(sin, cos) for sin, cos in zip(sin_theta, cos_theta)]
+    return atoms
