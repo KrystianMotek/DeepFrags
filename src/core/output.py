@@ -12,7 +12,7 @@ class Output:
     
     def n(self):
         # number of amino acids
-        return len(self.vector) / 3
+        return int(len(self.vector) / 3)
 
     def alpha(self):
         start = 0
@@ -25,7 +25,7 @@ class Output:
         return [self.vector[i] for i in range(start, end)]
 
     def cos_theta(self):
-        start = self.n()
+        start = 2 * self.n()
         end = 3 * self.n()
         return [self.vector[i] for i in range(start, end)]
 
@@ -65,8 +65,8 @@ def angles_to_cartesian(atom_1, atom_2, atom_3, bond_length, alpha, theta):
 
     l = tf.linalg.cross(tf.nn.l2_normalize(k), tf.nn.l2_normalize(v_23))
 
-    new_x = atom_3[0] - tf.nn.l2_normalize(v_23)[0] * x + l[0] * y + tf.nn.l2_normalize(k)[0] * z
-    new_y = atom_3[1] - tf.nn.l2_normalize(v_23)[1] * x + l[1] * y + tf.nn.l2_normalize(k)[1] * z
+    new_x = atom_3[0] - tf.nn.l2_normalize(v_23)[0] * x + l[0] * y + tf.nn.l2_normalize(k)[0] * z 
+    new_y = atom_3[1] - tf.nn.l2_normalize(v_23)[1] * x + l[1] * y + tf.nn.l2_normalize(k)[1] * z 
     new_z = atom_3[2] - tf.nn.l2_normalize(v_23)[2] * x + l[2] * y + tf.nn.l2_normalize(k)[2] * z 
 
     return tf.constant([new_x.numpy(), new_y.numpy(), new_z.numpy()])
@@ -84,9 +84,7 @@ def build_fragment(c_1, c_2, c_3, output: Output, bond_length):
         c_i = atoms[i-3]
         c_j = atoms[i-2]
         c_k = atoms[i-1]
-
         c_new = angles_to_cartesian(c_i, c_j, c_k, bond_length, alpha[i-3], theta[i-3])
-        c_new = tf.add(c_k, c_new)
         atoms.append(c_new)
 
     return atoms
