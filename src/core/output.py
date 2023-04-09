@@ -87,4 +87,4 @@ def build_fragment(c_1, c_2, c_3, output: Output, bond_length):
         c_new = angles_to_cartesian(c_i, c_j, c_k, bond_length, alpha[i-3], theta[i-3])
         atoms.append(c_new)
 
-    return atoms
+    return atoms[3:]
