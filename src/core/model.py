@@ -19,6 +19,10 @@ def reconstruction_loss(x, x_reconstructed):
     return tf.reduce_mean(tf.keras.losses.mean_squared_error(x, x_reconstructed))
 
 
+def displacement_loss(span_label, span_reconstructed):
+    return tf.linalg.norm(tf.subtract(span_label, span_reconstructed))
+
+
 def latent_sample(mean, log_variance):
     epsilon = tf.random.normal(shape=(1,))
     return mean + tf.exp(0.5 * log_variance) * epsilon
