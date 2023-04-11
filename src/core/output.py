@@ -60,16 +60,12 @@ def angles_to_cartesian(atom_1, atom_2, atom_3, bond_length, alpha, theta):
 
     v_12 = tf.subtract(atom_2, atom_1)
     v_23 = tf.subtract(atom_3, atom_2)
-    
-    k = tf.linalg.cross(v_12, tf.nn.l2_normalize(v_23))
 
-    l = tf.linalg.cross(tf.nn.l2_normalize(k), tf.nn.l2_normalize(v_23))
+    new_x = atom_3[0] - tf.nn.l2_normalize(v_23)[0] * x 
+    new_y = atom_3[1] - tf.nn.l2_normalize(v_23)[1] * x  
+    new_z = atom_3[2] - tf.nn.l2_normalize(v_23)[2] * x 
 
-    new_x = atom_3[0] - tf.nn.l2_normalize(v_23)[0] * x + l[0] * y + tf.nn.l2_normalize(k)[0] * z 
-    new_y = atom_3[1] - tf.nn.l2_normalize(v_23)[1] * x + l[1] * y + tf.nn.l2_normalize(k)[1] * z 
-    new_z = atom_3[2] - tf.nn.l2_normalize(v_23)[2] * x + l[2] * y + tf.nn.l2_normalize(k)[2] * z 
-
-    return tf.constant([new_x.numpy(), new_y.numpy(), new_z.numpy()])
+    return tf.convert_to_tensor([new_x, new_y, new_z])
 
 
 def build_fragment(c_1, c_2, c_3, output: Output, bond_length):
@@ -87,4 +83,4 @@ def build_fragment(c_1, c_2, c_3, output: Output, bond_length):
         c_new = angles_to_cartesian(c_i, c_j, c_k, bond_length, alpha[i-3], theta[i-3])
         atoms.append(c_new)
 
-    return atoms[3:]
+    return tf.convert_to_tensor(atoms[3:])
