@@ -9,11 +9,7 @@ import numpy as np
 from typing import List
 from abc import ABC, abstractmethod
 
-'''
-    Functionalities useful in data features extraction
-    Example line containing also additional information is shown below
-    4zvc A LEU 201 YKILLDSDLGS HHHHHHHCCCC -6.846 -4.808 -0.648 92.740 44.589 94.971 50.121 104.252 31.637 108.029 14.217 89.292 -127.539
-'''
+# functionalities useful in data features extraction
 
 
 class Input(ABC):
