@@ -74,6 +74,10 @@ class Structure:
     @property
     def atoms(self):
         return self._atoms
+    
+    def coordinates(self):
+        # get list of coordinates of all atoms
+        return [atom.coordinates for atom in self.atoms]
 
     def find_residue(self, residue_id):
         for atom in self.atoms:

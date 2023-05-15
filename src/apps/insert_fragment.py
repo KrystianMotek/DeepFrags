@@ -7,7 +7,7 @@ from tabulate import tabulate
 from core.model import DecoderLoader
 from core.features import LabelMLP
 from core.parser import FileParser, Structure, CarbonAlpha
-from structural import Vec3, Output, two_atoms_vector, build_fragment
+from structural import Vec3, Output, two_atoms_vector, build_fragment, compute_rmsd
 
 logging.getLogger("tensorflow").disabled=True
 logging.getLogger("h5py._conv").disabled=True
@@ -52,24 +52,18 @@ if __name__ == "__main__":
     dz = displacement.z
 
     decoder = DecoderLoader(decoder=f"{model}/decoder.pb", latent=f"{model}/latent.npy")
-
     labels = [LabelMLP(aa=aa, ss=ss, dx=dx, dy=dy, dz=dz).format() for _ in range(population)]
     labels = tf.reshape(labels, shape=(population, tf.shape(labels)[2]))
 
-    start_time = time.time()
-    
     vectors = decoder.predict(labels) # raw data from decoder
     outputs = [Output(vector) for vector in vectors]
-
-    end_time = time.time()
 
     # bound atoms not included in rebuilt fragment
     c_1 = input_structure.atoms[input_structure.find_residue(start-3)].coordinates
     c_2 = input_structure.atoms[input_structure.find_residue(start-2)].coordinates
     c_3 = input_structure.atoms[input_structure.find_residue(start-1)].coordinates
 
-    # convert generated angles to cartesian
-    fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] 
+    fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] # convert generated angles to cartesian
 
     last_bond_lengths = []
     for fragment in fragments:
@@ -107,9 +101,12 @@ if __name__ == "__main__":
         new_structures.append(structure)
     
     for i, structure in enumerate(new_structures):
-        print(f"MODEL {i+1}")
         last_bond_vector = two_atoms_vector(structure.atoms[structure.find_residue(end)].coordinates, input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
+        rmsd = compute_rmsd(structure.coordinates(), input_structure.coordinates())
+        
+        print(f"MODEL {i+1}")
         print(f"Last bond length {last_bond_vector.length():.3f}")
+        print(f"RMSD {rmsd:.3f}")
 
         lines = structure.to_pdb()
         for line in lines:
@@ -117,6 +114,3 @@ if __name__ == "__main__":
 
     table = [["Amino acids sequence", f"{aa}"], ["Secondary structure", f"{ss}"]]
     print(tabulate(table))
-
-    total_time = end_time - start_time
-    print(f"{population} outputs generated in {total_time:.3f} seconds")
