@@ -78,6 +78,12 @@ class Structure:
     def coordinates(self):
         # get list of coordinates of all atoms
         return [atom.coordinates for atom in self.atoms]
+    
+    def check_if_crossing(self):
+        # this method will check if chain is crossing in any place
+        # true or false and position index optional
+        # also distance tolerance should be given
+        pass
 
     def find_residue(self, residue_id):
         for atom in self.atoms:
