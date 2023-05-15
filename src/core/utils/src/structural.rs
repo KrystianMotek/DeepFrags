@@ -287,9 +287,7 @@ pub fn build_fragment(c_1: Vec3, c_2: Vec3, c_3: Vec3, output: Output, bond_leng
         let mut c_i = atoms[i-3].clone();
         let mut c_j = atoms[i-2].clone();
         let mut c_k = atoms[i-1].clone();
-
-        let mut c_new = angles_to_cartesian(&mut c_i, &mut c_j, &mut c_k, bond_length, alpha[i-3], theta[i-3]);
-        c_new.add(&c_k);
+        let c_new = angles_to_cartesian(&mut c_i, &mut c_j, &mut c_k, bond_length, alpha[i-3], theta[i-3]);
         atoms.push(c_new);
     }
     atoms
