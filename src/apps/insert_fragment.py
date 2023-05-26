@@ -1,4 +1,3 @@
-import time
 import argparse
 import logging
 import numpy as np
@@ -63,7 +62,8 @@ if __name__ == "__main__":
     c_2 = input_structure.atoms[input_structure.find_residue(start-2)].coordinates
     c_3 = input_structure.atoms[input_structure.find_residue(start-1)].coordinates
 
-    fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] # convert generated angles to cartesian
+    # convert generated angles to cartesian
+    fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] 
 
     last_bond_lengths = []
     for fragment in fragments:
