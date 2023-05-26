@@ -86,7 +86,7 @@ class Structure:
         places = []
         crossing = False
         for i in range(self.length()):
-            for j in range(self.length()):
+            for j in range(i, self.length()):
                 distance = self.local_displacement(i+1, j+1).length()
                 if i != j and distance < tolerance:
                     crossing = True
