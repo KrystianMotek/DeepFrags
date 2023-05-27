@@ -66,7 +66,7 @@ if __name__ == "__main__":
     # convert generated angles to cartesian
     fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] 
 
-    new_structures = []
+    new_structures = [] # all structures obtained from generated results
     for fragment in fragments:
         new_atoms = []
         for atom in input_structure.atoms:
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         structure = Structure(atoms=new_atoms)
         new_structures.append(structure)
 
-    valid_structures = []
+    valid_structures = [] # choose structures which are not crossed 
     for structure in new_structures:
         if structure.check_if_crossing(tolerance=1.0)[0] == False:
             valid_structures.append(structure)
@@ -97,6 +97,7 @@ if __name__ == "__main__":
     last_bond_errors = [np.abs(BOND_LENGTH - length) for length in last_bond_lengths]
     sorted_last_bond_errors = np.sort(last_bond_errors)
 
+    # select structures with the smallest last bond error
     if len(valid_structures) >= repeats:
         matching_structures = []
         for error in sorted_last_bond_errors[0:repeats]:
@@ -107,14 +108,15 @@ if __name__ == "__main__":
 
     pdb_name = os.path.splitext(os.path.basename(pdb))[0]
     output_path = f"{os.path.dirname(__file__)}/{pdb_name}_output.pdb"
+    
     output_file = open(output_path, "a")
     
     for i, structure in enumerate(matching_structures):
         print(f"MODEL {i+1}", file=output_file)
         last_bond_vector = two_atoms_vector(structure.atoms[structure.find_residue(end)].coordinates, input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
         rmsd = compute_rmsd(structure.coordinates(), input_structure.coordinates())
-        print(f"Last bond length {last_bond_vector.length():.3f}", file=output_file)
-        print(f"RMSD {rmsd:.3f}", file=output_file)
+        print(f"{last_bond_vector.length():.3f}", file=output_file)
+        print(f"{rmsd:.3f}", file=output_file)
 
         lines = structure.to_pdb()
         for line in lines:
