@@ -1,3 +1,4 @@
+import os
 import argparse
 import logging
 import numpy as np
@@ -25,14 +26,14 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--population", type=int, help="number of fragments generated to choose the best one")
     args = parser.parse_args()
 
-    file = args.file
+    pdb = args.file
     start = args.start 
     end = args.end 
     model = args.model 
     repeats = args.repeats
     population = args.population
 
-    input_structure = FileParser(file=file).load_structure() 
+    input_structure = FileParser(file=pdb).load_structure() 
 
     if args.aa == None:
         aa = input_structure.read_sequence(start, end)
@@ -65,52 +66,61 @@ if __name__ == "__main__":
     # convert generated angles to cartesian
     fragments = [build_fragment(c_1, c_2, c_3, output, BOND_LENGTH) for output in outputs] 
 
-    last_bond_lengths = []
+    new_structures = []
     for fragment in fragments:
-        last_bond_vector = two_atoms_vector(fragment[-1], input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
-        last_bond_lengths.append(last_bond_vector.length())
+        new_atoms = []
+        for atom in input_structure.atoms:
+            if atom.residue_id >= start and atom.residue_id <= end:
+                vec_index = atom.residue_id - start + 3
+                x = fragment[vec_index].x
+                y = fragment[vec_index].y
+                z = fragment[vec_index].z
+                coordinates = Vec3(x=x, y=y, z=z)
+                new_atom = CarbonAlpha(ss=atom.ss, id=atom.id, residue=atom.residue, chain_name=atom.chain_name, residue_id=atom.residue_id, coordinates=coordinates)
+                new_atoms.append(new_atom)
+            else:
+                new_atoms.append(atom)
+        
+        structure = Structure(atoms=new_atoms)
+        new_structures.append(structure)
+
+    valid_structures = []
+    for structure in new_structures:
+        if structure.check_if_crossing(tolerance=1.0)[0] == False:
+            valid_structures.append(structure)
+
+    last_bond_lengths = []
+    for structure in valid_structures:
+        last_bond_length = structure.local_displacement(end, end+1).length()
+        last_bond_lengths.append(last_bond_length)
 
     last_bond_errors = [np.abs(BOND_LENGTH - length) for length in last_bond_lengths]
     sorted_last_bond_errors = np.sort(last_bond_errors)
 
-    matching_fragments = []
-    for error in sorted_last_bond_errors[0:repeats]:
-        fragment = fragments[last_bond_errors.index(error)]
-        matching_fragments.append(fragment)
+    if len(valid_structures) >= repeats:
+        matching_structures = []
+        for error in sorted_last_bond_errors[0:repeats]:
+            structure = valid_structures[last_bond_errors.index(error)]
+            matching_structures.append(structure)
+    else:
+        matching_structures = valid_structures
 
-    new_structures = []
-    for fragment in matching_fragments:
-        new_atoms = []
-        for atom in input_structure.atoms:
-            atom_ss = atom.ss
-            atom_id = atom.id
-            atom_residue = atom.residue
-            atom_chain_name = atom.chain_name
-            atom_residue_id = atom.residue_id
-            if atom_residue_id >= start and atom_residue_id <= end:
-                vector_index = atom_residue_id - start + 3
-                atom_x = fragment[vector_index].x
-                atom_y = fragment[vector_index].y
-                atom_z = fragment[vector_index].z
-                atom_coordinates = Vec3(x=atom_x, y=atom_y, z=atom_z)
-                new_atoms.append(CarbonAlpha(ss=atom_ss, id=atom_id, residue=atom_residue, chain_name=atom_chain_name, residue_id=atom_residue_id, coordinates=atom_coordinates))
-            else:
-                new_atoms.append(atom)
-
-        structure = Structure(atoms=new_atoms) # protein with inserted fragment
-        new_structures.append(structure)
+    pdb_name = os.path.splitext(os.path.basename(pdb))[0]
+    output_path = f"{os.path.dirname(__file__)}/{pdb_name}_output.pdb"
+    output_file = open(output_path, "a")
     
-    for i, structure in enumerate(new_structures):
+    for i, structure in enumerate(matching_structures):
+        print(f"MODEL {i+1}", file=output_file)
         last_bond_vector = two_atoms_vector(structure.atoms[structure.find_residue(end)].coordinates, input_structure.atoms[input_structure.find_residue(end+1)].coordinates)
         rmsd = compute_rmsd(structure.coordinates(), input_structure.coordinates())
-        
-        print(f"MODEL {i+1}")
-        print(f"Last bond length {last_bond_vector.length():.3f}")
-        print(f"RMSD {rmsd:.3f}")
+        print(f"Last bond length {last_bond_vector.length():.3f}", file=output_file)
+        print(f"RMSD {rmsd:.3f}", file=output_file)
 
         lines = structure.to_pdb()
         for line in lines:
-            print(line)
+            print(line, file=output_file)
+
+    output_file.close()
 
     table = [["Amino acids sequence", f"{aa}"], ["Secondary structure", f"{ss}"]]
     print(tabulate(table))
